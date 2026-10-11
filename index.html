@@ -2,1661 +2,883 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>Das Gewissens-Duell</title>
+<title>Herz oder Kopf?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..700&family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@500;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/5.10.1/mqtt.min.js"></script>
 <style>
+/* ================================================================
+   HERZ ODER KOPF? — Gesinnungs- und Verantwortungsethik
+   Tasten:  Leertaste / →  weiter      ←  zurück
+            N  Sprechtext ein/aus      S  ganzes Skript (druckbar)
+            F  Vollbild                C  Uhr starten/stoppen
+            1 / 2  Stimme für linke / rechte Seite (bei Abstimmungen)
+   ================================================================ */
 :root{
   --paper:#F6F1E7; --paper2:#EDE4D3; --card:#FFFDF8;
   --ink:#17172B; --ink2:#46455C; --ink3:#7C798E; --line:#DCD1BD;
   --herz:#E0482F; --herz2:#B8321C; --herzs:#FBE0D8;
   --kopf:#2752C7; --kopf2:#1B3C99; --kopfs:#DCE5FA;
-  --gold:#C4952B; --golds:#F5E7C3; --ok:#2E8B57; --bad:#C0392B;
-  --a:#8B3FD9; --b:#0A8FB0; --c:#D9820B; --d:#1E9A4B;
+  --gold:#C4952B; --golds:#F5E7C3;
+  --luis:#6A4DE0; --ciepi:#0C9483;
   color-scheme:light;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
-body{margin:0;background:var(--paper);color:var(--ink);overflow:hidden;
-  background-image:radial-gradient(1000px 600px at 0% -10%, rgba(224,72,47,.10), transparent 60%),
-    radial-gradient(1000px 600px at 100% 110%, rgba(39,82,199,.10), transparent 60%);
-  font-family:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
-  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
-body::before{content:"";position:fixed;left:0;right:0;top:0;height:5px;z-index:100;pointer-events:none;
-  background:linear-gradient(90deg,var(--herz) 0 50%,var(--kopf) 50% 100%)}
-h1,h2,h3{margin:0;text-wrap:balance}
-button{font-family:inherit;cursor:pointer;color:inherit;border:0;background:none;font-size:inherit}
-input{font-family:inherit}
-:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-.serif{font-family:"Fraunces",Georgia,serif;font-weight:800;letter-spacing:-.02em}
-.eyebrow{font-family:"JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink3);display:block;font-size:clamp(12px,.95vw,17px);font-weight:700}
-#root{height:100%;display:flex;flex-direction:column;overflow:auto}
+html,body{height:100%;margin:0}
+body{background:#12121F;overflow:hidden;font-family:"Bricolage Grotesque",system-ui,sans-serif;
+  color:var(--ink);-webkit-font-smoothing:antialiased;font-variant-ligatures:common-ligatures no-discretionary-ligatures no-historical-ligatures no-contextual}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;font-size:inherit}
+h1,h2,h3,p{margin:0}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:1600px;height:900px;flex:none;transform-origin:center center;
+  background:var(--paper);overflow:hidden;border-radius:6px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
+/* Papierstruktur */
+#stage::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+   radial-gradient(900px 500px at 8% -10%, rgba(224,72,47,.10), transparent 60%),
+   radial-gradient(900px 500px at 105% 110%, rgba(39,82,199,.10), transparent 60%),
+   repeating-linear-gradient(0deg, rgba(23,23,43,.018) 0 1px, transparent 1px 4px)}
 
-/* ====================== Figuren ====================== */
-.fig{display:block;width:100%;height:100%;overflow:visible}
-.fig .up,.fig .a1,.fig .a2,.fig .hd{transform-box:fill-box}
-.fig .up{transform-origin:50% 100%;animation:idUp 3.6s ease-in-out infinite}
-.fig .hd{transform-origin:50% 100%;animation:idHd 3.6s ease-in-out infinite}
-.fig .a1{transform-origin:50% 8px;animation:idA1 3.6s ease-in-out infinite}
-.fig .a2{transform-origin:50% 8px;animation:idA2 3.6s ease-in-out infinite}
-.fig .halo{transform-box:fill-box;transform-origin:center;animation:halo 2.4s ease-in-out infinite}
-@keyframes halo{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-@keyframes idUp{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
-@keyframes idHd{0%,100%{transform:rotate(1.6deg)}50%{transform:rotate(-1.6deg)}}
-@keyframes idA1{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-4deg)}}
-@keyframes idA2{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(4deg)}}
-/* Tanz 1 — Wippen */
-.fig.dn1{animation:d0hop .5s ease-in-out infinite}
-.fig.dn1 .up{animation:d0up .5s ease-in-out infinite}
-.fig.dn1 .hd{animation:d0hd .5s ease-in-out infinite}
-.fig.dn1 .a1{animation:d0a1 .5s ease-in-out infinite}
-.fig.dn1 .a2{animation:d0a2 .5s ease-in-out infinite}
-@keyframes d0hop{0%,100%{transform:translateY(0)}50%{transform:translateY(-6%)}}
-@keyframes d0up{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
-@keyframes d0hd{0%,100%{transform:rotate(8deg)}50%{transform:rotate(-8deg)}}
-@keyframes d0a1{0%,100%{transform:rotate(20deg)}50%{transform:rotate(130deg)}}
-@keyframes d0a2{0%,100%{transform:rotate(-130deg)}50%{transform:rotate(-20deg)}}
-/* Tanz 2 — Arme hoch */
-.fig.dn2 .up{animation:d1up .8s ease-in-out infinite}
-.fig.dn2 .hd{animation:d1hd .8s ease-in-out infinite}
-.fig.dn2 .a1{animation:d1a1 .8s ease-in-out infinite}
-.fig.dn2 .a2{animation:d1a2 .8s ease-in-out infinite}
-@keyframes d1up{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
-@keyframes d1hd{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
-@keyframes d1a1{0%,100%{transform:rotate(150deg)}50%{transform:rotate(172deg)}}
-@keyframes d1a2{0%,100%{transform:rotate(-172deg)}50%{transform:rotate(-150deg)}}
-/* Tanz 3 — Sirtaki (Arme seitlich, Schritt) */
-.fig.dn3{animation:d2step .7s ease-in-out infinite}
-.fig.dn3 .up{animation:d2up .7s ease-in-out infinite}
-.fig.dn3 .a1{animation:d2a1 .7s ease-in-out infinite}
-.fig.dn3 .a2{animation:d2a2 .7s ease-in-out infinite}
-@keyframes d2step{0%,100%{transform:translateX(-5%)}50%{transform:translateX(5%)}}
-@keyframes d2up{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
-@keyframes d2a1{0%,100%{transform:rotate(95deg)}50%{transform:rotate(80deg)}}
-@keyframes d2a2{0%,100%{transform:rotate(-80deg)}50%{transform:rotate(-95deg)}}
-/* Tanz 4 — Jubeln */
-.fig.dn4{animation:d3jump .66s cubic-bezier(.3,.1,.4,1) infinite}
-.fig.dn4 .a1{animation:d3a1 .33s ease-in-out infinite}
-.fig.dn4 .a2{animation:d3a2 .33s ease-in-out infinite}
-@keyframes d3jump{0%,100%{transform:translateY(0)}40%{transform:translateY(-13%)}}
-@keyframes d3a1{0%{transform:rotate(60deg)}100%{transform:rotate(165deg)}}
-@keyframes d3a2{0%{transform:rotate(-165deg)}100%{transform:rotate(-60deg)}}
-/* Tanz 5 — Denker (Hand am Kinn, wiegt den Kopf) */
-.fig.dn5 .a2{animation:d4a2 1.6s ease-in-out infinite}
-.fig.dn5 .hd{animation:d4hd 1.6s ease-in-out infinite}
-.fig.dn5 .up{animation:d4up 1.6s ease-in-out infinite}
-@keyframes d4a2{0%,100%{transform:rotate(-150deg)}50%{transform:rotate(-142deg)}}
-@keyframes d4hd{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(5deg)}}
-@keyframes d4up{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
-.fig.cheer .a1{animation:chA1 1.2s ease-in-out infinite}
-.fig.cheer .a2{animation:chA2 1.2s ease-in-out infinite}
-@keyframes chA1{0%,100%{transform:rotate(150deg)}50%{transform:rotate(168deg)}}
-@keyframes chA2{0%,100%{transform:rotate(-150deg)}50%{transform:rotate(-168deg)}}
+/* ---------- Grundgerüst einer Folie ---------- */
+.slide{position:absolute;inset:0;padding:54px 84px 70px;display:flex;flex-direction:column;z-index:1;
+  animation:slin .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes slin{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.top{display:flex;align-items:center;gap:18px;margin-bottom:26px;flex:none}
+.sec{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:17px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink3)}
+.sec b{color:var(--ink);font-weight:700}
+.spk{margin-left:auto;display:flex;align-items:center;gap:7px;padding:3px 12px 3px 3px;border-radius:99px;
+  background:transparent;border:1.5px solid var(--line);font-weight:700;font-size:14px;color:var(--ink3);opacity:.75}
+.spk i{width:22px;height:22px;font-size:11px!important;border-radius:50%;background:var(--sc);color:#fff;display:flex;
+  align-items:center;justify-content:center;font-style:normal;font-size:18px}
+.spk small{font-size:12px;font-weight:600;color:var(--ink3);margin-left:4px}
+.spk.luis{--sc:var(--luis)} .spk.ciepi{--sc:var(--ciepi)}
+.body{flex:1;min-height:0;display:flex;position:relative}
 
-/* ====================== Akademie (Saal) ====================== */
-.hall{position:relative;flex:1;min-height:0;border-radius:18px;overflow:hidden;border:1.5px solid var(--line);
-  background:#EFE6D4}
-.hall.dusk{background:#2A2340}
-.hall .wall{position:absolute;inset:0}
-.hall .wall svg{display:block;width:100%;height:100%}
-.hrow{position:absolute;inset:0}
-.stepx{position:absolute;left:-4%;right:-4%;border-radius:4px;
-  background:linear-gradient(180deg,#FBF7EE 0%,#E8DFCC 55%,#D5C9B0 100%);
-  box-shadow:inset 0 3px 0 rgba(255,255,255,.8), 0 6px 14px rgba(40,30,10,.14)}
-.figw{position:absolute;aspect-ratio:120/220;transform:translate(-50%,-100%);
-  animation:walkin .55s cubic-bezier(.2,.85,.3,1) both}
-@keyframes walkin{from{opacity:0;transform:translate(-50%,-100%) translateY(-30px) scale(.9)}
-  to{opacity:1;transform:translate(-50%,-100%)}}
-.figw .nm{position:absolute;bottom:101%;left:50%;transform:translateX(-50%);white-space:nowrap;
-  background:var(--card);border:2px solid var(--tc,var(--ink));border-radius:99px;padding:1px 10px;font-weight:800;color:var(--ink);
-  box-shadow:0 3px 8px rgba(18,22,24,.16);max-width:200%;overflow:hidden;text-overflow:ellipsis}
-.figw.t0{--tc:var(--herz)} .figw.t1{--tc:var(--kopf)}
-.figw.alt .nm{transform:translateX(-50%) translateY(-118%)}
-.figw .tt{position:absolute;bottom:101%;left:50%;transform:translateX(-50%) translateY(-135%);
-  white-space:nowrap;background:var(--ink);color:var(--paper);border-radius:99px;padding:1px 9px;font-weight:700;font-size:.86em}
-.figw.alt .tt{transform:translateX(-50%) translateY(-253%)}
-.figw .rk{position:absolute;top:-4%;left:-10%;background:var(--ink);color:#fff;font-family:"JetBrains Mono",monospace;
-  font-weight:700;border-radius:99px;min-width:1.9em;text-align:center;padding:0 4px;z-index:3}
-.figw.gold1 .rk{background:var(--gold);color:#3A2E12}
-.figw .glow{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%);width:200%;height:200%;border-radius:50%;
-  pointer-events:none;background:radial-gradient(circle,rgba(255,214,110,.55) 0%,rgba(255,214,110,0) 62%)}
+.display{font-family:"Fraunces",Georgia,serif;font-weight:800;font-size:132px;line-height:.9;letter-spacing:-.035em}
+.h1{font-family:"Fraunces",Georgia,serif;font-weight:700;font-size:74px;line-height:.98;letter-spacing:-.025em}
+.h2{font-family:"Fraunces",Georgia,serif;font-weight:700;font-size:50px;line-height:1.02;letter-spacing:-.02em}
+.h3{font-weight:800;font-size:30px;line-height:1.12}
+.lead{font-size:30px;line-height:1.36;color:var(--ink2)}
+.txt{font-size:24px;line-height:1.42;color:var(--ink2)}
+.mono{font-family:"JetBrains Mono",monospace}
+.kick{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:16px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink3)}
+.herz{color:var(--herz)} .kopf{color:var(--kopf)}
+em.hl{font-style:normal;background:linear-gradient(transparent 58%, var(--golds) 58%);padding:0 4px}
 
-/* ====================== Allgemein (Handy) ====================== */
-.wrap{width:100%;max-width:560px;margin:0 auto;padding:0 18px;padding-block:16px 26px;flex:1;display:flex;flex-direction:column}
-.crestbar{display:flex;align-items:center;gap:11px;padding-bottom:11px;border-bottom:1.5px solid var(--line)}
-.crest{width:30px;height:30px;flex:none}
-.crestbar b{font-weight:800;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.crestbar .sc{margin-left:auto;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
-.crestbar .scl{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
-.tbadge{display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:3px 10px;font-weight:800;font-size:13px;color:#fff;flex:none}
-.tbadge.t0{background:var(--herz)} .tbadge.t1{background:var(--kopf)}
-.btn{display:block;width:100%;padding:18px 22px;border-radius:14px;background:var(--ink);color:var(--paper);font-weight:800;font-size:19px;text-align:center}
-.btn.go{background:linear-gradient(90deg,var(--herz),var(--kopf));color:#fff;box-shadow:0 5px 0 #3B2A5E}
-.btn.go:active{transform:translateY(3px);box-shadow:0 2px 0 #3B2A5E}
-.btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--line)}
-.field{width:100%;font-size:21px;padding:15px 16px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
-.field:focus{border-color:var(--ink);outline:none}
-.card{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:0 6px 18px rgba(23,23,43,.07)}
-.card.gold{border:0;border-left:5px solid var(--gold);border-radius:4px 14px 14px 4px}
-.p{font-size:16.5px;color:var(--ink2);margin:0;line-height:1.45}
+.card{background:var(--card);border:1.5px solid var(--line);border-radius:22px;padding:26px 30px;
+  box-shadow:0 10px 30px rgba(23,23,43,.07)}
+.card.h{border-color:var(--herz);background:linear-gradient(180deg,#FFF8F5,#FFFDF8)}
+.card.k{border-color:var(--kopf);background:linear-gradient(180deg,#F6F8FF,#FFFDF8)}
+.chip{display:inline-flex;align-items:center;gap:8px;border-radius:99px;padding:6px 16px;font-weight:800;
+  font-size:19px;background:var(--paper2);color:var(--ink2)}
+.chip.h{background:var(--herzs);color:var(--herz2)} .chip.k{background:var(--kopfs);color:var(--kopf2)}
+.chip.g{background:var(--golds);color:#7A5A12}
 
-/* Startseite */
-.land{flex:1;display:flex;flex-direction:column;justify-content:center;gap:20px;max-width:460px;margin:0 auto;padding:24px 18px;width:100%}
-.land h1{font-family:"Fraunces",Georgia,serif;font-weight:800;font-size:clamp(40px,11vw,60px);line-height:.95;letter-spacing:-.03em}
-.codein{font-family:"JetBrains Mono",monospace;font-size:34px;letter-spacing:.3em;text-align:center;text-transform:uppercase;padding:16px 10px}
-.landfigs{display:flex;justify-content:center;gap:4px;height:120px}
-.landfigs span{height:100%;aspect-ratio:120/220}
+/* Schritt-für-Schritt aufdecken */
+[data-step]{opacity:0;transform:translateY(14px);transition:opacity .45s ease, transform .5s cubic-bezier(.2,.8,.2,1)}
+[data-step].on{opacity:1;transform:none}
+[data-step].pop.on{animation:pop .5s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pop{0%{transform:scale(.7)}100%{transform:scale(1)}}
 
-/* Figurenwahl */
-.teampick{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.tp{border-radius:16px;padding:14px 12px;border:3px solid transparent;color:#fff;display:flex;flex-direction:column;align-items:center;gap:3px;
-  font-weight:800;font-size:19px;line-height:1.1;opacity:.55;transition:transform .12s,opacity .2s}
-.tp small{font-weight:500;font-size:12.5px;opacity:.9}
-.tp .ti{font-size:34px;line-height:1}
-.tp.t0{background:linear-gradient(150deg,var(--herz),var(--herz2))}.tp.t1{background:linear-gradient(150deg,var(--kopf),var(--kopf2))}
-.tp.on{opacity:1;transform:translateY(-2px);border-color:var(--ink);box-shadow:0 6px 0 var(--ink)}
-.archs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.arch{border-radius:12px;background:var(--card);border:1.5px solid var(--line);border-top:4px solid var(--rc,var(--line));padding:6px 3px 5px;
-  position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:2px;transition:transform .1s}
-.arch .af{width:100%;aspect-ratio:120/200;pointer-events:none}
-.arch span{font-size:9px;font-family:"JetBrains Mono",monospace;color:var(--ink2);text-transform:uppercase;line-height:1.12;text-align:center;
-  font-weight:700;overflow-wrap:anywhere;padding:0 2px}
-.arch.on{transform:translateY(-3px) scale(1.04);box-shadow:0 8px 18px rgba(18,22,24,.18);border-color:var(--rc)}
-.arch.on::after{content:"";position:absolute;right:5px;top:6px;width:10px;height:10px;border-radius:50%;background:var(--rc);box-shadow:0 0 0 2px #fff}
-.orow{display:flex;flex-direction:column;gap:7px}
-.orow > b{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
-.opts{display:flex;gap:7px;flex-wrap:wrap}
-.opt{border:2px solid var(--line);background:var(--card);border-radius:99px;padding:9px 14px;font-size:14px;font-weight:700;
-  display:flex;align-items:center;gap:7px;color:var(--ink2)}
-.opt i{width:15px;height:15px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.15)}
-.opt.on{border-color:var(--ink);color:var(--ink);background:#fff;box-shadow:0 0 0 3px rgba(23,23,43,.1)}
-.pvbar{position:sticky;bottom:0;z-index:20;margin:14px -18px -26px;padding:12px 18px 18px;
-  background:linear-gradient(180deg,rgba(246,241,231,0) 0%,var(--paper) 26%);display:flex;align-items:flex-end;gap:14px}
-.pvbar .pv{height:108px;aspect-ratio:120/220;flex:none;filter:drop-shadow(0 6px 12px rgba(18,22,24,.16))}
-.pvbar .pi{flex:1;min-width:0}
-.pvbar .pi b{display:block;font-size:16px;line-height:1.15}
-.pvbar .pi i{display:block;font-style:normal;font-size:13px;color:var(--ink3);margin-top:2px}
-.pvbar .gob{flex:none;background:var(--ink);color:#fff;font-weight:800;border-radius:99px;padding:15px 22px;font-size:16px;box-shadow:0 4px 0 #000}
-.pvbar .gob:active{transform:translateY(2px);box-shadow:0 2px 0 #000}
+/* ---------- Symbole ---------- */
+.ico{display:inline-block;flex:none}
+.bob{animation:bob 3.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.beat{animation:beat 1.6s ease-in-out infinite;transform-origin:center}
+@keyframes beat{0%,100%{transform:scale(1)}12%{transform:scale(1.09)}24%{transform:scale(1)}36%{transform:scale(1.06)}}
+.ripple circle{transform-origin:center;transform-box:fill-box;animation:rip 2.6s ease-out infinite}
+.ripple circle:nth-child(2){animation-delay:.6s}.ripple circle:nth-child(3){animation-delay:1.2s}
+@keyframes rip{0%{transform:scale(.3);opacity:1}100%{transform:scale(1.25);opacity:0}}
 
-/* Antwortpad */
-.pad{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.pad.golden{padding:8px;border-radius:18px;background:linear-gradient(135deg,#F6E7BE,#E3C786);box-shadow:0 0 0 3px var(--gold)}
-.ans{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-  min-height:130px;border-radius:16px;background:var(--ac);color:#fff;font-weight:800;padding:12px 10px;
-  background-image:linear-gradient(160deg,rgba(255,255,255,.22),rgba(0,0,0,.14));
-  box-shadow:0 6px 0 rgba(0,0,0,.24), 0 10px 22px rgba(18,22,24,.2);text-shadow:0 2px 4px rgba(0,0,0,.25);transition:transform .08s,opacity .3s}
-.ans:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
-.ans svg{width:42px;height:42px}
-.ans .lt{font-size:15px;line-height:1.2;text-align:center;font-weight:700}
-.ans.gone{opacity:.12;pointer-events:none}
-.pad.gv{grid-template-columns:1fr}
-.pad.gv .ans{min-height:150px;flex-direction:row;gap:16px;font-size:30px}
-.pad.gv .ans .big{font-family:"Fraunces",serif;font-size:40px}
-.pad.gv .ans small{display:block;font-size:14px;font-weight:600;opacity:.9;font-family:"Bricolage Grotesque",sans-serif}
-.jokers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.jk{border-radius:12px;padding:10px 8px;border:2px solid var(--line);background:var(--card);display:flex;flex-direction:column;align-items:center;
-  gap:2px;font-weight:800;font-size:15px;line-height:1.15}
-.jk span{font-size:10.5px;font-family:"JetBrains Mono",monospace;color:var(--ink3);text-transform:uppercase;letter-spacing:.07em}
-.jk.gold{border-color:var(--gold)}
-.jk.gold.on{background:linear-gradient(180deg,#F5E4B8,#DFC282)}
-.jk.half.on{background:var(--kopfs);border-color:var(--kopf)}
-.jk:disabled{opacity:.32}
-.goldnote{text-align:center;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#8B6914;margin:0}
-.tline{display:flex;align-items:center;gap:13px}
-.tnum{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:32px;font-variant-numeric:tabular-nums;min-width:2.4ch;text-align:right}
-.tnum.hot{color:var(--herz)}
-.ttrack{flex:1;height:12px;background:var(--paper2);border-radius:6px;overflow:hidden}
-.ttrack i{display:block;height:100%;background:linear-gradient(90deg,var(--herz),var(--kopf));border-radius:6px;transition:width .3s linear}
-.verdict{border-radius:16px;padding:24px 20px;text-align:center;color:#fff}
-.verdict.good{background:var(--ok)} .verdict.bad{background:var(--bad)} .verdict.miss{background:var(--ink3)}
-.verdict.gold2{background:linear-gradient(135deg,#B08A2E,#8A6A1F)} .verdict.poll{background:linear-gradient(135deg,var(--herz),var(--kopf))}
-.verdict .vt{font-family:"Fraunces",Georgia,serif;font-weight:800;font-size:42px;line-height:1}
-.verdict .vp{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:20px;margin-top:8px}
-.bigq{font-family:"Fraunces",serif;font-weight:700;font-size:21px;line-height:1.25;text-align:center}
-
-/* Reaktionen */
-.react{margin-top:auto;padding-top:16px;display:flex;flex-direction:column;gap:9px}
-.emobar{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
-.emo{width:42px;height:42px;border-radius:50%;background:var(--card);border:1.5px solid var(--line);font-size:23px;display:flex;align-items:center;justify-content:center}
-.emo:active{transform:scale(.84)}
-.shouts{display:flex;gap:7px;justify-content:center;flex-wrap:wrap}
-.sh{border:1.5px solid var(--line);background:var(--card);border-radius:99px;padding:7px 13px;font-size:13.5px;font-weight:700;color:var(--ink2)}
-.sh:active{transform:scale(.95)}
-.dancerow{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.dc{border-radius:12px;background:var(--ink);color:var(--paper);font-weight:700;font-size:11.5px;padding:10px 2px;display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.1}
-.dc b{font-size:18px;font-weight:400}
-.dc:active{transform:translateY(1px)}
-.lookbtn{border:1.5px dashed var(--line);background:transparent;border-radius:99px;padding:9px;font-size:13px;font-weight:700;color:var(--ink3);width:100%}
-.emobar,.shouts,.dancerow{transition:opacity .22s}
-body.cooling .emobar,body.cooling .shouts,body.cooling .dancerow{opacity:.38;pointer-events:none}
-body.cooling .react::after{content:"Kurz durchatmen";display:block;text-align:center;font-family:"JetBrains Mono",monospace;font-size:11px;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin-top:2px}
-.flame{display:inline-flex;align-items:center;gap:3px;background:linear-gradient(180deg,#F4D98B,#DDBB63);color:#5B4413;border-radius:99px;
-  padding:1px 7px;font-weight:700;font-size:.72em;font-family:"JetBrains Mono",monospace}
-.seriebig{display:inline-flex;align-items:center;gap:8px;border-radius:99px;background:linear-gradient(180deg,#F6E4B4,#E3C782);color:#5B4413;
-  font-weight:800;padding:8px 18px;font-size:16px}
-.minihall{height:200px;border-radius:14px;overflow:hidden;position:relative;display:flex}
-
-/* ====================== Tauziehen ====================== */
-.tug{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:clamp(8px,1vw,18px)}
-.tug .ts{display:flex;align-items:center;gap:8px;font-weight:800;font-size:clamp(14px,1.2vw,22px);line-height:1.05}
-.tug .ts b{font-family:"JetBrains Mono",monospace;font-size:1.15em}
-.tug .ts small{display:block;font-size:.62em;font-weight:600;color:var(--ink3);font-family:"JetBrains Mono",monospace}
-.tug .ts.t0{color:var(--herz)} .tug .ts.t1{color:var(--kopf);text-align:right;flex-direction:row-reverse}
-.tug .ti{width:clamp(30px,2.6vw,48px);height:clamp(30px,2.6vw,48px);border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;
-  font-size:clamp(16px,1.4vw,26px);flex:none}
-.tug .t0 .ti{background:var(--herz)} .tug .t1 .ti{background:var(--kopf)}
-.rope{position:relative;height:clamp(30px,3vw,54px)}
-.rope .ln{position:absolute;left:0;right:0;top:50%;height:clamp(8px,.8vw,14px);transform:translateY(-50%);border-radius:7px;
+/* ---------- Abstimmung (Hände zählen) ---------- */
+.tally{display:grid;grid-template-columns:1fr 1.25fr 1fr;align-items:center;gap:26px}
+.tside{display:flex;flex-direction:column;align-items:center;gap:8px;border-radius:22px;padding:18px 16px 16px;
+  background:var(--card);border:2.5px solid var(--tc);box-shadow:0 6px 0 var(--tc);position:relative;
+  transition:transform .12s}
+.tside.a{--tc:var(--herz)} .tside.b{--tc:var(--kopf)}
+.tside:active{transform:translateY(4px);box-shadow:0 2px 0 var(--tc)}
+.tside .tl{font-weight:800;font-size:25px;text-align:center;line-height:1.15;color:var(--ink)}
+.tside .tn{font-family:"Fraunces",serif;font-weight:800;font-size:84px;line-height:.9;color:var(--tc)}
+.tside .th{font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.tside .tm{position:absolute;top:8px;right:10px;width:34px;height:34px;border-radius:50%;
+  background:var(--paper2);font-weight:800;font-size:22px;color:var(--ink3);line-height:1}
+.rope{position:relative;height:120px}
+.rope .ln{position:absolute;left:0;right:0;top:50%;height:14px;margin-top:-7px;border-radius:7px;
   background:repeating-linear-gradient(115deg,#B89260 0 10px,#9C7646 10px 20px);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
-.rope .mid{position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:var(--ink);opacity:.25;border-radius:2px}
-.rope .knot{position:absolute;top:50%;left:var(--p,50%);width:clamp(22px,2.2vw,40px);height:clamp(22px,2.2vw,40px);transform:translate(-50%,-50%);
-  border-radius:50%;background:var(--gold);border:4px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.25);transition:left 1.1s cubic-bezier(.2,1.3,.4,1)}
-.tug.big .rope{height:clamp(44px,4.4vw,80px)}
-.tug.big .ts{font-size:clamp(18px,1.8vw,34px)}
-.tug.big .ti{width:clamp(44px,4vw,74px);height:clamp(44px,4vw,74px);font-size:clamp(22px,2.2vw,40px)}
+.rope .mid{position:absolute;left:50%;top:10px;bottom:10px;width:3px;margin-left:-1.5px;background:var(--ink);opacity:.25;border-radius:2px}
+.rope .knot{position:absolute;top:50%;left:var(--p,50%);width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;
+  background:var(--gold);border:4px solid #fff;box-shadow:0 6px 16px rgba(0,0,0,.25);transition:left .6s cubic-bezier(.2,1.3,.4,1)}
+.rope .pct{position:absolute;bottom:-6px;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:20px}
+.rope .pct.l{left:0;color:var(--herz)} .rope .pct.r{right:0;color:var(--kopf)}
 
-/* ====================== Beamer ====================== */
-.adm{flex:1;display:flex;min-height:0;overflow:hidden}
-.main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative;padding:clamp(18px,2.4vw,40px) clamp(20px,2.6vw,44px)}
-.rail{flex:0 0 clamp(250px,21vw,350px);background:var(--card);border-left:1.5px solid var(--line);display:flex;flex-direction:column;
-  min-height:0;padding:clamp(14px,1.5vw,24px);gap:12px}
-.rail h3{font-family:"JetBrains Mono",monospace;font-size:clamp(12px,.95vw,15px);letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);
-  padding-bottom:10px;border-bottom:2px solid var(--ink);display:flex;align-items:baseline;gap:8px}
-.rail h3 b{margin-left:auto;color:var(--ink);font-family:"Bricolage Grotesque",sans-serif;font-size:1.1em}
-.railteam{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:14px;background:var(--paper)}
-.railteam .tug .ts{font-size:clamp(12px,.9vw,16px)}
-.lb{list-style:none;margin:0;padding:0;overflow:auto;flex:1;min-height:0}
-.lb li{display:grid;grid-template-columns:2ch 10px 1fr auto auto;gap:9px;align-items:center;padding:clamp(6px,.7vw,10px) 4px;
-  border-bottom:1px solid var(--paper2);font-size:clamp(14px,1.1vw,19px);transition:background .5s}
-.lb li.bump{background:var(--golds)}
-.lb .r{font-family:"JetBrains Mono",monospace;color:var(--ink3);font-size:.85em;text-align:right}
-.lb .d{width:10px;height:10px;border-radius:50%}
-.lb .n{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lb .s{font-family:"JetBrains Mono",monospace;font-weight:700;font-variant-numeric:tabular-nums}
-.lb li.p1 .r{color:var(--gold);font-weight:800}
-.qhead{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:clamp(8px,1.2vh,18px)}
-.qhead .step{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink);font-size:clamp(14px,1.2vw,21px);letter-spacing:.1em;
-  background:var(--card);border:1.5px solid var(--line);border-radius:99px;padding:5px 14px}
-.qhead .kind{font-weight:800;font-size:clamp(14px,1.2vw,21px);border-radius:99px;padding:5px 14px;color:#fff}
-.kind.mc{background:var(--ink)} .kind.gv{background:linear-gradient(90deg,var(--herz),var(--kopf))} .kind.poll{background:var(--gold);color:#3A2E12}
-.kind.fin{background:linear-gradient(90deg,#B08A2E,#E8C766);color:#3A2E12}
-.qhead .cnt{margin-left:auto;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:clamp(15px,1.3vw,23px);color:var(--ink2);font-variant-numeric:tabular-nums}
-.bq{font-family:"Fraunces",Georgia,serif;font-weight:700;letter-spacing:-.02em;font-size:clamp(28px,3.4vw,60px);line-height:1.05;margin:0 0 clamp(12px,1.8vh,24px)}
-.btimer{display:flex;align-items:center;gap:clamp(12px,1.4vw,22px);margin-bottom:clamp(10px,1.6vh,22px)}
-.btimer .bn{font-family:"JetBrains Mono",monospace;font-weight:700;font-variant-numeric:tabular-nums;font-size:clamp(36px,4.6vw,84px);line-height:.9;min-width:2.3ch;text-align:right}
-.btimer .bn.hot{color:var(--herz)}
-.btimer .bt{flex:1;height:clamp(10px,1.2vh,17px);background:var(--paper2);border-radius:10px;overflow:hidden}
-.btimer .bt i{display:block;height:100%;background:linear-gradient(90deg,var(--herz),var(--kopf));border-radius:10px;transition:width .3s linear}
-.qtiles{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.2vw,20px);width:100%;flex:1;max-height:56vh;grid-auto-rows:1fr}
-.qtiles .qt{font-size:clamp(20px,2.3vw,40px)!important}
-.qtile{display:flex;align-items:center;gap:clamp(11px,1.3vw,19px);background:var(--qc);color:#fff;border-radius:16px;
-  padding:clamp(14px,1.6vw,28px) clamp(16px,1.8vw,30px);box-shadow:0 5px 0 rgba(0,0,0,.2);position:relative;overflow:hidden;
-  background-image:linear-gradient(160deg,rgba(255,255,255,.18),rgba(0,0,0,.12));text-shadow:0 2px 4px rgba(0,0,0,.22);animation:tileIn .5s cubic-bezier(.2,1.2,.4,1) both}
-@keyframes tileIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:none}}
-.qtile svg{width:clamp(30px,2.8vw,50px);height:clamp(30px,2.8vw,50px);flex:none}
-.qtile .qt{font-size:clamp(17px,1.8vw,31px);font-weight:700;line-height:1.14}
-/* Herz-oder-Kopf-Frage: zwei große Hälften */
-.gvstage{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:0;border-radius:24px;overflow:hidden;min-height:0;position:relative}
-.gvhalf{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px;color:#fff;padding:clamp(18px,3vh,40px) 20px 20px}
-.gvhalf.h{background:linear-gradient(150deg,var(--herz),var(--herz2))} .gvhalf.k{background:linear-gradient(150deg,var(--kopf),var(--kopf2))}
-.gvhalf .gi{font-size:clamp(60px,7vw,130px);line-height:1}
-.gvhalf .gl{font-family:"Fraunces",serif;font-weight:800;font-size:clamp(34px,4vw,72px);line-height:1}
-.gvhalf .gs{font-family:"JetBrains Mono",monospace;font-size:clamp(13px,1.1vw,19px);letter-spacing:.14em;text-transform:uppercase;opacity:.85}
-.gvhalf .gc{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:clamp(26px,3vw,54px)}
-.gvhalf.dim{filter:saturate(.25) brightness(.8)}
-.gvcase{position:absolute;left:50%;top:66%;transform:translate(-50%,-50%);width:min(64%,900px);background:var(--card);color:var(--ink);
-  border-radius:22px;padding:clamp(18px,2vw,34px);box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;border:4px solid var(--ink)}
-.gvcase .bq{margin:0;font-size:clamp(24px,2.6vw,46px)}
-.gvcase .eyebrow{margin-bottom:8px}
-.revwrap{flex:1;display:flex;gap:clamp(16px,2.2vw,40px);min-height:0;align-items:stretch}
-.revleft{flex:1 1 56%;display:flex;flex-direction:column;justify-content:center;gap:clamp(10px,1.4vh,18px);min-width:0}
-.revright{flex:1 1 44%;display:flex;flex-direction:column;gap:clamp(8px,1.2vh,16px);min-width:0;justify-content:center}
-.bq.rev{font-size:clamp(22px,2.3vw,40px);margin:0}
-.alist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:clamp(5px,.7vh,10px)}
-.alist li{position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:clamp(8px,1vw,16px);align-items:center;background:var(--card);
-  border:1.5px solid var(--line);border-radius:12px;overflow:hidden;padding:clamp(8px,1vw,16px) clamp(12px,1.3vw,22px);opacity:.45}
-.alist li.right{opacity:1;border-color:var(--ok);border-width:3px;box-shadow:0 4px 16px rgba(46,139,87,.2)}
-.alist.poll li{opacity:1}
-.alist .abar{position:absolute;left:0;top:0;bottom:0;background:var(--qc);opacity:.18;width:0;z-index:0;animation:barw 1s cubic-bezier(.2,.8,.3,1) .2s forwards}
-@keyframes barw{to{width:var(--w)}}
-.alist .ai{width:clamp(26px,2.4vw,40px);height:clamp(26px,2.4vw,40px);border-radius:9px;background:var(--qc);display:flex;align-items:center;justify-content:center;z-index:1}
-.alist .ai svg{width:70%;height:70%}
-.alist .at{font-size:clamp(15px,1.4vw,25px);font-weight:700;line-height:1.16;z-index:1}
-.alist .ac{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:clamp(15px,1.4vw,25px);z-index:1}
-.alist li.right .at::after{content:" ✓";color:var(--ok)}
-.qexpl{background:var(--card);border-left:5px solid var(--gold);border-radius:4px 14px 14px 4px;padding:clamp(12px,1.3vw,20px) clamp(15px,1.6vw,24px);
-  font-size:clamp(16px,1.35vw,24px);line-height:1.4;color:var(--ink2)}
-.qexpl b{color:var(--ink)}
-.duel{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.2vw,18px)}
-.dcard{border-radius:18px;padding:clamp(12px,1.4vw,24px);color:#fff;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden}
-.dcard.t0{background:linear-gradient(150deg,var(--herz),var(--herz2))} .dcard.t1{background:linear-gradient(150deg,var(--kopf),var(--kopf2))}
-.dcard .dl{font-family:"JetBrains Mono",monospace;font-size:clamp(11px,.9vw,15px);letter-spacing:.14em;text-transform:uppercase;opacity:.85}
-.dcard .dv{font-family:"Fraunces",serif;font-weight:800;font-size:clamp(42px,4.6vw,86px);line-height:.9}
-.dcard .dm{font-size:clamp(13px,1.05vw,18px);opacity:.9}
-.dcard .dwin{position:absolute;right:12px;bottom:12px;background:var(--gold);color:#3A2E12;border-radius:99px;padding:2px 10px;font-weight:800;font-size:clamp(11px,.9vw,15px)}
+/* ---------- Karten zum Umdrehen ---------- */
+.flip{perspective:1400px;cursor:pointer}
+.flip .in{position:relative;width:100%;height:100%;transition:transform .7s cubic-bezier(.3,1.3,.5,1);transform-style:preserve-3d}
+.flip.open .in{transform:rotateY(180deg)}
+.flip .fa,.flip .fb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:22px;
+  padding:24px 26px;display:flex;flex-direction:column;gap:12px}
+.flip .fa{background:var(--card);border:1.5px solid var(--line);box-shadow:0 10px 30px rgba(23,23,43,.08)}
+.flip .fb{transform:rotateY(180deg);color:#fff}
+.flip .fb.h{background:linear-gradient(150deg,var(--herz),var(--herz2))}
+.flip .fb.k{background:linear-gradient(150deg,var(--kopf),var(--kopf2))}
+.flip .n{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:15px;letter-spacing:.14em;color:var(--ink3)}
+.flip .q{font-size:25px;line-height:1.3;font-weight:600}
+.flip .ask{margin-top:auto;display:flex;gap:10px;font-weight:800;font-size:20px}
+.flip .fb .v{font-family:"Fraunces",serif;font-weight:800;font-size:44px;line-height:1}
+.flip .fb p{font-size:21px;line-height:1.35;opacity:.95}
 
-/* Lobby */
-.lobby{flex:1;display:flex;flex-direction:column;gap:clamp(10px,1.4vh,20px);min-height:0}
-.ltop{display:flex;align-items:center;gap:clamp(18px,2.2vw,40px);flex-wrap:wrap}
-.ltitle{font-family:"Fraunces",serif;font-weight:800;font-size:clamp(30px,3.4vw,62px);line-height:.95;letter-spacing:-.03em}
-.joinaddr{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:clamp(17px,1.7vw,30px);line-height:1.05;color:var(--ink2);word-break:break-all}
-.roomcode{font-family:"JetBrains Mono",monospace;font-weight:700;letter-spacing:.2em;font-size:clamp(34px,4.2vw,74px);line-height:1;color:var(--ink);
-  display:inline-block;background:var(--card);border:3px solid var(--ink);border-radius:16px;padding:clamp(4px,.5vw,10px) clamp(12px,1.4vw,26px);box-shadow:6px 6px 0 var(--ink)}
-.qrbox{background:#fff;padding:clamp(8px,.8vw,14px);border-radius:16px;border:1.5px solid var(--line);box-shadow:0 8px 26px rgba(18,22,24,.1);flex:none}
-.qrbox canvas{display:block;width:clamp(100px,10.5vw,175px);height:auto;image-rendering:pixelated}
-.startbtn{margin-left:auto;background:linear-gradient(90deg,var(--herz),var(--kopf));color:#fff;font-weight:800;padding:clamp(13px,1.3vw,19px) clamp(28px,3vw,50px);
-  border-radius:99px;font-size:clamp(17px,1.5vw,25px);box-shadow:0 5px 0 #3B2A5E;flex:none}
-.startbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #3B2A5E}
-.startbtn:disabled{background:var(--ink3);box-shadow:0 5px 0 #4a5053;cursor:not-allowed}
-.mgr{position:fixed;inset:0;z-index:95;background:rgba(14,17,19,.55);display:flex;align-items:center;justify-content:center;padding:4vh 3vw}
-.mgrbox{background:var(--card);border-radius:18px;padding:clamp(18px,2vw,30px);width:min(680px,100%);max-height:92vh;display:flex;flex-direction:column;gap:14px;box-shadow:0 30px 80px rgba(0,0,0,.35)}
-.mgrlist{overflow:auto;display:flex;flex-direction:column;gap:7px;min-height:0}
-.mgrrow{display:grid;grid-template-columns:34px 1fr auto auto;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:10px;padding:8px 12px;font-size:16px}
-.mgrrow .mf{height:30px;aspect-ratio:120/220}
-.mgrrow b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.mini{border:1.5px solid var(--line);background:var(--card);border-radius:9px;padding:6px 12px;font-size:13.5px;font-weight:700}
-.mini.warn{border-color:var(--bad);color:var(--bad)} .mini.dark{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+/* ---------- Fuß: Fortschritt ---------- */
+#foot{position:absolute;left:84px;right:84px;bottom:22px;display:flex;align-items:center;gap:18px;z-index:5}
+#bar{flex:1;display:flex;gap:5px}
+#bar i{flex:1;height:7px;border-radius:4px;background:var(--line);position:relative;overflow:hidden}
+#bar i.l::after,#bar i.c::after{content:"";position:absolute;inset:0;border-radius:4px;opacity:0;transition:opacity .3s}
+#bar i.l::after{background:var(--luis)} #bar i.c::after{background:var(--ciepi)}
+#bar i.done::after{opacity:.45} #bar i.now::after{opacity:1}
+#num{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:15px;color:var(--ink3);letter-spacing:.08em}
+#clock{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:15px;color:var(--ink3);min-width:9ch;text-align:right}
+#clock.run{color:var(--ink)} #clock.over{color:var(--herz)}
+.navb{width:34px;height:34px;border-radius:50%;background:var(--card);border:1.5px solid var(--line);font-size:18px;
+  color:var(--ink2);display:flex;align-items:center;justify-content:center}
+.navb:hover{border-color:var(--ink)}
 
-/* Zwischenstand + Podium */
-.scoreboard{display:flex;flex-direction:column;gap:clamp(6px,.8vh,12px);min-height:0;overflow:auto}
-.srow{display:grid;grid-template-columns:clamp(40px,3.4vw,64px) auto 1fr auto;gap:clamp(10px,1.3vw,22px);align-items:center;background:var(--card);
-  border:1.5px solid var(--line);border-left:6px solid var(--tc);border-radius:12px;padding:clamp(6px,.8vw,12px) clamp(13px,1.4vw,22px);animation:slidein .5s cubic-bezier(.2,.8,.3,1) both}
-.srow.t0{--tc:var(--herz)} .srow.t1{--tc:var(--kopf)}
-.srow .sr{font-family:"Fraunces",serif;font-weight:800;font-size:clamp(22px,2.3vw,40px);color:var(--ink3);line-height:1}
-.srow .sf{height:clamp(36px,3.4vw,60px);aspect-ratio:120/220}
-.srow .sn{font-weight:700;font-size:clamp(16px,1.5vw,27px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.srow .ss{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:clamp(16px,1.5vw,27px);font-variant-numeric:tabular-nums}
-.srow .sd{font-family:"JetBrains Mono",monospace;font-size:clamp(12px,1vw,17px);color:var(--ok);margin-left:8px}
-.srow.top1{border-color:var(--gold);border-left-color:var(--tc);border-width:2px 2px 2px 6px}
-@keyframes slidein{from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:none}}
-.top3{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:clamp(14px,2.4vw,52px);min-height:0;padding-top:clamp(8px,1.4vh,20px)}
-.t3{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;max-width:clamp(140px,15vw,230px);flex:1;animation:rise .6s ease both}
-.t3 .t3f{aspect-ratio:120/220;height:56%;max-height:56%}
-.t3 .t3n{font-weight:800;font-size:clamp(15px,1.4vw,26px);text-align:center;line-height:1.14;margin-top:6px;overflow-wrap:anywhere}
-.t3 .t3s{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink2);font-size:clamp(13px,1.1vw,19px);margin:2px 0 8px}
-.t3 .t3b{width:100%;border-radius:12px 12px 0 0;display:flex;justify-content:center;padding:clamp(5px,.6vw,10px) 0;position:relative;overflow:hidden}
-.t3 .t3r{font-family:"Fraunces",serif;font-weight:800;color:#fff;line-height:1;font-size:clamp(20px,2.2vw,40px)}
-.t3.g1 .t3b,.pod.g1 .pb{background:linear-gradient(180deg,#E3BE5E,#A8832E)}
-.t3.g2 .t3b,.pod.g2 .pb{background:linear-gradient(180deg,#C3CACD,#8E969A)}
-.t3.g3 .t3b,.pod.g3 .pb{background:linear-gradient(180deg,#D09A6A,#9D6A42)}
-.pod.g4 .pb{background:linear-gradient(180deg,#B9B3A6,#8B8578)}
-.t3.g1 .t3f{height:66%;max-height:66%}
-.t3.g1 .t3b::after,.pod.g1 .pb::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.6) 50%,transparent 65%);
-  animation:sheen 2.6s ease-in-out infinite}
-@keyframes sheen{0%{transform:translateX(-120%)}55%,100%{transform:translateX(120%)}}
-@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
-@keyframes grow{from{height:0}to{height:var(--h)}}
-.final{flex:1;display:flex;flex-direction:column;min-height:0;gap:clamp(8px,1.2vh,16px)}
-.podium{flex:1;display:flex;align-items:flex-end;justify-content:center;gap:clamp(6px,1.2vw,26px);min-height:0}
-.pod{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;max-width:clamp(150px,16vw,250px);height:100%;position:relative}
-.pod .pfw{aspect-ratio:120/220;opacity:0;animation:rise .55s ease both;position:relative}
-.pod .pfw .glow{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:200%;height:200%;border-radius:50%;
-  background:radial-gradient(circle,rgba(255,214,110,.55) 0%,rgba(255,214,110,0) 62%)}
-.pod .pa{font-family:"JetBrains Mono",monospace;font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:clamp(10px,.85vw,14px);color:#8B6914;
-  text-align:center;margin-top:5px;opacity:0;animation:rise .5s ease both;line-height:1.2}
-.pod .pn{font-weight:800;font-size:clamp(15px,1.5vw,27px);text-align:center;line-height:1.14;overflow-wrap:anywhere;opacity:0;animation:rise .5s ease both}
-.pod .ps{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:clamp(13px,1.15vw,20px);color:var(--ink2);margin:3px 0 9px;opacity:0;animation:rise .5s ease both}
-.pod .pb{width:100%;border-radius:12px 12px 0 0;display:flex;justify-content:center;padding-top:clamp(8px,.9vw,15px);height:0;animation:grow .85s cubic-bezier(.2,.85,.3,1) both;position:relative;overflow:hidden}
-.pod .pr{font-family:"Fraunces",serif;font-weight:800;font-size:clamp(26px,3.3vw,60px);color:#fff;line-height:1}
-.winbar{display:flex;align-items:center;gap:clamp(12px,1.4vw,24px);border-radius:18px;padding:clamp(10px,1.2vw,20px) clamp(14px,1.6vw,26px);color:#fff;flex:none;animation:rise .6s ease 3.6s both}
-.winbar.t0{background:linear-gradient(90deg,var(--herz),var(--herz2))} .winbar.t1{background:linear-gradient(90deg,var(--kopf),var(--kopf2))}
-.winbar.tie{background:linear-gradient(90deg,var(--herz),var(--kopf))}
-.winbar .wi{font-size:clamp(34px,3.4vw,62px)}
-.winbar .wt{font-family:"Fraunces",serif;font-weight:800;font-size:clamp(22px,2.3vw,42px);line-height:1}
-.winbar .ws{font-size:clamp(13px,1.1vw,19px);opacity:.92;margin-top:4px;font-style:italic;font-family:"Fraunces",serif}
+/* ---------- Sprechtext ---------- */
+#notes{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(1100px,94vw);max-height:44vh;overflow:auto;
+  background:rgba(18,18,31,.96);color:#EDEAF6;border-radius:16px;padding:18px 24px;z-index:50;display:none;
+  font-size:18px;line-height:1.5;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+#notes.show{display:block}
+#notes .nh{display:flex;gap:12px;align-items:center;font-family:"JetBrains Mono",monospace;font-size:13px;letter-spacing:.12em;
+  text-transform:uppercase;color:#A9A5C2;margin-bottom:8px}
+#notes .nh b{padding:3px 10px;border-radius:99px;color:#fff}
+#notes ul{margin:10px 0 0;padding-left:20px;color:#C9C5DE;font-size:16px}
+#script{position:fixed;inset:0;z-index:60;background:#F6F1E7;overflow:auto;display:none;padding:40px 20px 80px}
+#script.show{display:block}
+#script .sw{max-width:860px;margin:0 auto}
+#script h1{font-family:"Fraunces",serif;font-size:46px;margin-bottom:6px}
+#script .row{border-top:1.5px solid var(--line);padding:18px 0;display:grid;grid-template-columns:120px 1fr;gap:18px;break-inside:avoid}
+#script .who{font-weight:800;font-size:18px}
+#script .who small{display:block;font-family:"JetBrains Mono",monospace;font-weight:500;font-size:13px;color:var(--ink3);margin-top:3px}
+#script .say{font-size:18px;line-height:1.55}
+#script .act{font-size:15px;color:var(--ink3);margin-top:6px}
+#script .x{position:fixed;top:16px;right:20px;background:var(--ink);color:#fff;border-radius:99px;padding:10px 18px;font-weight:700}
+#help{position:fixed;left:14px;top:12px;color:#8F8BA8;font-family:"JetBrains Mono",monospace;font-size:12px;z-index:4;opacity:.8}
+@media print{
+  body{background:#fff;overflow:visible} #viewport,#help,#notes,#script .x{display:none!important}
+  #script{display:block!important;position:static;padding:0}
+}
 
-.nextbtn{position:fixed;right:clamp(16px,1.8vw,30px);bottom:clamp(16px,1.8vh,30px);z-index:60;background:var(--ink);color:var(--paper);font-weight:800;
-  border-radius:99px;padding:clamp(12px,1.2vw,18px) clamp(22px,2.2vw,36px);font-size:clamp(15px,1.3vw,22px);display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(18,22,24,.3)}
-.nextbtn span{font-size:1.35em;line-height:1;opacity:.75}
-.nextbtn:hover{background:linear-gradient(90deg,var(--herz),var(--kopf))}
+/* ---------- Einzelne Folien ---------- */
+.door{position:relative;width:360px;height:560px;flex:none}
+.door .knock{position:absolute;font-family:"Fraunces",serif;font-weight:800;font-style:italic;color:var(--ink);font-size:44px;
+  animation:knock 1.8s ease-in-out infinite}
+@keyframes knock{0%,60%,100%{transform:rotate(-6deg) scale(1);opacity:.9}66%{transform:rotate(4deg) scale(1.12);opacity:1}72%{transform:rotate(-8deg) scale(1)}}
+.lightsl{animation:flick 3s ease-in-out infinite}
+@keyframes flick{0%,100%{opacity:.95}45%{opacity:.6}50%{opacity:1}}
 
-/* Meldungen und Effekte */
-#toasts{position:fixed;left:clamp(14px,1.6vw,28px);bottom:clamp(14px,1.6vh,26px);z-index:80;display:flex;flex-direction:column;gap:6px;pointer-events:none}
-.toast{background:rgba(23,23,43,.92);color:#fff;border-radius:99px;padding:7px 16px;font-size:clamp(13px,1vw,17px);font-weight:700;display:flex;align-items:center;gap:8px;
-  animation:tin .25s ease both, tout .4s ease 1.7s both}
-@keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes tout{to{opacity:0;transform:translateY(-6px)}}
-#float{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
-.fl{position:absolute;bottom:-70px;font-size:clamp(28px,2.8vw,50px);text-align:center;animation:rise2 4.4s ease-out forwards}
-.fl small{font-family:"JetBrains Mono",monospace;font-size:.3em;color:var(--ink2);display:block;margin-top:2px;font-weight:700}
-.fl.pill{font-size:clamp(15px,1.3vw,23px);font-weight:800;background:var(--card);border:2.5px solid var(--ink);border-radius:99px;padding:8px 18px;white-space:nowrap;
-  box-shadow:0 6px 20px rgba(18,22,24,.18);animation:rise3 4.6s ease-out forwards}
-.fl.pill small{font-size:.66em;color:var(--ink3);border-top:1px solid var(--line);margin-top:3px;padding-top:2px}
-@keyframes rise2{0%{transform:translateY(0) scale(.6);opacity:0}12%{opacity:1;transform:translateY(-14vh) scale(1)}100%{transform:translateY(-95vh) scale(1);opacity:0}}
-@keyframes rise3{0%{transform:translateY(0) scale(.7);opacity:0}14%{opacity:1;transform:translateY(-16vh) scale(1)}100%{transform:translateY(-78vh) scale(1);opacity:0}}
-#jfx{position:fixed;inset:0;z-index:86;display:flex;align-items:center;justify-content:center;pointer-events:none;overflow:hidden}
-.jcard{position:relative;background:rgba(255,253,248,.98);border-radius:22px;padding:clamp(14px,1.6vw,28px) clamp(20px,2.4vw,44px);display:flex;align-items:center;
-  gap:clamp(14px,1.8vw,30px);box-shadow:0 20px 60px rgba(18,22,24,.28);animation:jin .35s cubic-bezier(.2,.9,.3,1.3) both, jout .45s ease 2.1s both}
-.jcard.gold{border:4px solid var(--gold)} .jcard.half{border:4px solid var(--kopf)}
-.jcard .jfg{height:clamp(84px,9vw,160px);aspect-ratio:120/220;flex:none}
-.jcard .jl{font-family:"JetBrains Mono",monospace;font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:clamp(12px,1vw,17px);color:var(--ink3)}
-.jcard .jn{font-family:"Fraunces",serif;font-weight:800;font-size:clamp(28px,3.2vw,56px);line-height:1.02;margin-top:3px}
-.jcard .jd{font-size:clamp(14px,1.2vw,21px);color:var(--ink2);margin-top:5px}
-.jrays{position:absolute;left:50%;top:50%;width:150vmax;height:150vmax;transform:translate(-50%,-50%);z-index:-1;opacity:.18;
-  background:repeating-conic-gradient(from 0deg,var(--gold) 0deg 5deg,transparent 5deg 13deg);animation:spin 11s linear infinite}
-@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes jin{from{opacity:0;transform:scale(.72)}to{opacity:1;transform:none}}
-@keyframes jout{to{opacity:0;transform:scale(1.07)}}
-.topcard{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(246,241,231,.97);animation:tcOut .5s ease 1.4s both;z-index:30}
-.topcard .tc{display:flex;flex-direction:column;align-items:center;gap:4px;animation:tcIn .5s cubic-bezier(.2,.9,.3,1.2) both}
-.topcard .tl{font-family:"JetBrains Mono",monospace;letter-spacing:.24em;text-transform:uppercase;color:var(--ink3);font-size:clamp(14px,1.3vw,24px)}
-.topcard .tn{font-family:"Fraunces",serif;font-weight:800;font-size:clamp(90px,15vw,240px);line-height:.9;
-  background:linear-gradient(90deg,var(--herz),var(--kopf));-webkit-background-clip:text;background-clip:text;color:transparent}
-.topcard .tk{font-weight:800;font-size:clamp(18px,1.8vw,32px);border-radius:99px;padding:6px 20px;margin-top:8px}
-@keyframes tcIn{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:none}}
-@keyframes tcOut{to{opacity:0;visibility:hidden}}
-#fx{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
-.conf{position:absolute;top:-6vh;width:11px;height:16px;border-radius:2px;opacity:0;animation:fall linear forwards}
-@keyframes fall{0%{opacity:0;transform:translateY(0) rotate(0)}8%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(112vh) rotate(720deg)}}
-.offline{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:90;background:var(--bad);color:#fff;padding:9px 18px;border-radius:99px;font-size:14px;font-weight:700}
-@media (max-width:900px){ .rail{display:none} .qtiles{grid-template-columns:1fr} .ltop{flex-direction:column;align-items:flex-start} .startbtn{margin-left:0} .revwrap{flex-direction:column} }
-@media (max-width:400px){ .archs{grid-template-columns:repeat(3,1fr)} }
+.vs{width:96px;height:96px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;
+  justify-content:center;font-family:"Fraunces",serif;font-weight:800;font-style:italic;font-size:38px;flex:none;
+  box-shadow:0 0 0 10px var(--paper)}
+
+.panel3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px}
+.comic{position:relative;background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:22px 22px 18px;
+  display:flex;flex-direction:column;gap:14px;box-shadow:8px 8px 0 var(--ink)}
+.comic .who{display:flex;align-items:center;gap:12px;font-weight:800;font-size:22px}
+.av{width:58px;height:58px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;
+  font-weight:800;font-size:26px;flex:none;border:3px solid var(--ink)}
+.bubble{position:relative;background:var(--paper);border:2.5px solid var(--ink);border-radius:18px;padding:14px 18px;
+  font-size:23px;line-height:1.3;font-weight:600}
+.bubble::before{content:"";position:absolute;left:26px;top:-14px;width:20px;height:20px;background:var(--paper);
+  border-left:2.5px solid var(--ink);border-top:2.5px solid var(--ink);transform:rotate(45deg) skew(8deg,8deg)}
+
+.cmp{display:grid;grid-template-columns:230px 1fr 1fr;gap:12px 18px;align-items:stretch}
+.cmp .rl{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:15px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);display:flex;align-items:center}
+.cmp .c{border-radius:14px;padding:13px 20px;font-size:23px;line-height:1.3;font-weight:600;display:flex;align-items:center}
+.cmp .c.h{background:var(--herzs);color:#6E1D0F} .cmp .c.k{background:var(--kopfs);color:#12296A}
+.cmp .hd{border-radius:16px;padding:16px 20px;color:#fff;display:flex;align-items:center;gap:14px}
+.cmp .hd.h{background:var(--herz)} .cmp .hd.k{background:var(--kopf)}
+.cmp .hd b{font-family:"Fraunces",serif;font-size:32px;line-height:1}
+
+.medal{width:190px;height:190px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%,#fff,#E9E0CC 70%);
+  border:6px solid var(--gold);box-shadow:0 12px 30px rgba(0,0,0,.18), inset 0 -8px 20px rgba(0,0,0,.07);overflow:hidden}
+.quote{font-family:"Fraunces",serif;font-style:italic;font-weight:500;font-size:34px;line-height:1.28;color:var(--ink)}
+.quote::before{content:"„";color:var(--gold);font-size:1.5em;margin-right:4px}
+.src{font-family:"JetBrains Mono",monospace;font-size:15px;color:var(--ink3);letter-spacing:.08em;margin-top:10px}
+
+.tline{position:relative;flex:1;display:flex;flex-direction:column}
+.axis{position:absolute;left:0;right:0;top:318px;height:6px;border-radius:3px;background:var(--ink)}
+.axis::after{content:"";position:absolute;right:-6px;top:-8px;border-left:18px solid var(--ink);border-top:11px solid transparent;border-bottom:11px solid transparent}
+.gap{position:absolute;top:300px;left:19%;width:96px;height:44px;background:var(--paper);display:flex;align-items:center;justify-content:center;
+  font-family:"JetBrains Mono",monospace;font-weight:700;font-size:13px;color:var(--ink3)}
+.gap::before,.gap::after{content:"";position:absolute;top:0;bottom:0;width:5px;background:var(--ink);transform:skewX(-18deg)}
+.gap::before{left:6px}.gap::after{right:6px}
+.ph{position:absolute;width:210px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.ph .md{width:118px;height:118px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#E9E0CC 70%);
+  border:5px solid var(--pc);box-shadow:0 8px 20px rgba(0,0,0,.14);overflow:hidden}
+.ph.up{top:40px}.ph.dn{top:352px}
+.ph .nm{font-weight:800;font-size:23px;line-height:1.05}
+.ph .yr{font-family:"JetBrains Mono",monospace;font-size:14px;color:var(--ink3);font-weight:700}
+.ph .ds{font-size:18px;line-height:1.3;color:var(--ink2)}
+.ph .tg{font-size:14px;padding:3px 12px}
+.ph::after{content:"";position:absolute;left:50%;width:3px;background:var(--pc);margin-left:-1.5px}
+.ph.up::after{top:100%;height:calc(318px - 40px - 100%)}
+.ph.dn::after{bottom:100%;height:28px}
+.ph.dot::before{content:"";position:absolute;left:50%;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:var(--pc);border:4px solid var(--paper)}
+.ph.up.dot::before{top:calc(318px - 40px - 8px)}
+.ph.dn.dot::before{top:-42px}
+
+.rings{position:relative;width:640px;height:640px;flex:none}
+.ring{position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%) scale(.2);opacity:0;
+  transition:transform .8s cubic-bezier(.2,1.2,.4,1),opacity .4s;display:flex;justify-content:center}
+.ring.on{transform:translate(-50%,-50%) scale(1);opacity:1}
+.ring span{position:absolute;top:8px;background:var(--card);border-radius:99px;padding:4px 14px;font-weight:800;font-size:18px;
+  box-shadow:0 3px 10px rgba(0,0,0,.1);white-space:nowrap}
+
+.fields{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;flex:1;min-height:0;margin-bottom:8px}
+.fields .fi{font-size:72px!important} .fields h3{font-size:36px!important} .fields p{font-size:23px!important}
+.fields .duo div{font-size:20px!important;padding:10px 14px!important}
+.field{border-radius:22px;padding:24px;background:var(--card);border:1.5px solid var(--line);display:flex;flex-direction:column;gap:12px;
+  box-shadow:0 10px 30px rgba(23,23,43,.07);position:relative;overflow:hidden}
+.field .fi{font-size:54px;line-height:1}
+.field h3{font-size:30px;font-weight:800}
+.field p{font-size:20px;line-height:1.38;color:var(--ink2)}
+.field .duo{margin-top:auto;display:flex;flex-direction:column;gap:7px}
+.field .duo div{font-size:17px;line-height:1.3;padding:8px 12px;border-radius:10px}
+.field .duo .h{background:var(--herzs);color:#6E1D0F}.field .duo .k{background:var(--kopfs);color:#12296A}
+
+.scale{position:relative;width:560px;height:560px;flex:none}
+.beam{position:absolute;left:30px;right:30px;top:130px;height:0;transform:rotate(var(--tilt,0deg));transition:transform 1s cubic-bezier(.3,1.5,.5,1)}
+.beam .bar{position:absolute;left:0;right:0;top:-7px;height:14px;border-radius:7px;background:var(--ink)}
+.pan{position:absolute;top:0;width:190px;transform:rotate(calc(var(--tilt,0deg) * -1));transform-origin:50% 0;transition:transform 1s cubic-bezier(.3,1.5,.5,1)}
+.pan.l{left:-60px}.pan.r{right:-60px}
+.pan .str{height:120px;margin:0 auto;width:120px;border-left:3px solid var(--ink);border-right:3px solid var(--ink);
+  clip-path:polygon(50% 0,100% 100%,0 100%);background:transparent}
+.pan .dish{height:36px;border-radius:0 0 95px 95px;margin-top:-2px}
+.pan.l .dish{background:var(--herz)}.pan.r .dish{background:var(--kopf)}
+.pan .w{display:flex;flex-wrap:wrap-reverse;justify-content:center;gap:4px;position:absolute;bottom:34px;left:10px;right:10px}
+.pan .w i{width:30px;height:24px;border-radius:6px 6px 3px 3px;background:var(--gold);box-shadow:inset 0 -4px 0 rgba(0,0,0,.2);animation:pop .4s both}
+.post{position:absolute;left:50%;top:120px;bottom:40px;width:18px;margin-left:-9px;background:var(--ink);border-radius:9px}
+.foot{position:absolute;left:50%;bottom:20px;width:220px;height:34px;margin-left:-110px;background:var(--ink);border-radius:17px 17px 6px 6px}
+.pivot{position:absolute;left:50%;top:110px;width:42px;height:42px;margin-left:-21px;border-radius:50%;background:var(--gold);border:5px solid var(--ink);z-index:2}
+.klist{display:flex;flex-direction:column;gap:12px}
+.kitem{display:flex;gap:14px;align-items:flex-start;font-size:22px;line-height:1.32;font-weight:600;padding:13px 18px;border-radius:14px}
+.kitem.h{background:var(--herzs);color:#6E1D0F}.kitem.k{background:var(--kopfs);color:#12296A}
+.kitem b{font-size:26px;line-height:1}
+
+.eq{display:flex;align-items:center;gap:30px;justify-content:center}
+.eq .t{display:flex;flex-direction:column;align-items:center;gap:8px;font-weight:800;font-size:26px}
+.eq .op{font-family:"Fraunces",serif;font-weight:800;font-size:90px;color:var(--ink3)}
+.take{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.take .card{display:flex;gap:16px;align-items:flex-start}
+.take .card > b{font-family:"Fraunces",serif;font-size:52px;line-height:.9;color:var(--gold)}
+.take .card p{font-size:22px;line-height:1.35;color:var(--ink2)}
+
+.qrwrap{background:#fff;border-radius:26px;padding:22px;box-shadow:0 20px 60px rgba(23,23,43,.18);border:1.5px solid var(--line);flex:none}
+.qrwrap canvas{display:block;width:380px;height:380px;image-rendering:pixelated}
+.url{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:34px;color:var(--herz);word-break:break-all;line-height:1.1}
+.steps3{display:flex;flex-direction:column;gap:14px}
+.steps3 div{display:flex;gap:16px;align-items:center;font-size:26px;font-weight:600}
+.steps3 b{width:48px;height:48px;border-radius:50%;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;
+  font-family:"JetBrains Mono",monospace;flex:none}
+.teams{display:flex;gap:14px}
+.team{flex:1;border-radius:18px;padding:16px 18px;color:#fff;display:flex;align-items:center;gap:14px;font-weight:800;font-size:24px;line-height:1.1}
+.team small{display:block;font-weight:500;font-size:16px;opacity:.9;margin-top:3px}
+.team.h{background:linear-gradient(150deg,var(--herz),var(--herz2))}.team.k{background:linear-gradient(150deg,var(--kopf),var(--kopf2))}
+.dancers{display:flex;gap:6px;align-items:flex-end}
+.dancers span{font-size:46px;display:inline-block;animation:dnc .9s ease-in-out infinite}
+.dancers span:nth-child(2){animation-delay:.15s}.dancers span:nth-child(3){animation-delay:.3s}.dancers span:nth-child(4){animation-delay:.45s}
+@keyframes dnc{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-14px) rotate(6deg)}}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+.confetti i{position:absolute;top:-30px;width:12px;height:18px;border-radius:3px;animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(980px) rotate(620deg)}}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<div id="float"></div>
-<div id="jfx"></div>
-<div id="fx"></div>
-<div id="toasts"></div>
+<div id="help">Leertaste = weiter · N = Sprechtext · S = Skript · F = Vollbild · C = Uhr</div>
+<div id="viewport"><div id="stage">
+  <div id="slot"></div>
+  <div id="foot">
+    <button class="navb" id="pv" aria-label="Zurück">‹</button>
+    <span id="num"></span>
+    <div id="bar"></div>
+    <span id="clock">0:00 / 8:00</span>
+    <button class="navb" id="nx" aria-label="Weiter">›</button>
+  </div>
+</div></div>
+<div id="notes"></div>
+<div id="script"></div>
 
 <script>
 (function(){
 "use strict";
 
 /* ================================================================
-   DAS GEWISSENS-DUELL — Live-Quiz zu Gesinnungs- und Verantwortungsethik
-
-   Kein Server nötig. Alle Geräte verbinden sich nach AUSSEN zu einem
-   öffentlichen MQTT-Vermittler. Ein Gerät leitet das Quiz ("Leitung")
-   und hält den Spielstand; die Handys schicken nur ihre Aktionen.
-
-   Fragetypen:  mc   = vier Antworten A–D
-                gv   = Herz (Gesinnung) oder Kopf (Verantwortung)?
-                poll = Gewissensfrage ohne richtige Antwort (+50 fürs Mitmachen)
-   fin:true     = Finalfrage, doppelte Punkte für alle
+   HIER DIE ADRESSE DES QUIZ EINTRAGEN (nach dem GitHub-Upload).
+   Der QR-Code auf der letzten Folie wird daraus erzeugt.
    ================================================================ */
+var QUIZURL = "https://rechthak.github.io/ethik-quiz/";
 
-var MAXP = 32;
+var SPK = {Luis:{c:"luis",i:"L"}, Ciepi:{c:"ciepi",i:"C"}};
 
-var QUIZ = [
-  {t:"mc", s:15, q:"Wer hat 1919 die Begriffe Gesinnungs- und Verantwortungsethik geprägt?",
-   a:["Immanuel Kant","Max Weber","Hans Jonas","Aristoteles"], r:1,
-   e:"<b>Max Weber</b>, deutscher Soziologe, in seinem Vortrag „Politik als Beruf“ (1919)."},
-  {t:"gv", s:12, q:"Eine Person spendet, weil Helfen gut ist. Ob das Geld wirklich ankommt, prüft sie nicht.", r:0,
-   e:"<b>Herz.</b> Für die Gesinnungsethik zählt die aufrichtige Absicht. Die Verantwortungsethik würde prüfen, ob die Spende wirklich hilft."},
-  {t:"gv", s:12, q:"Lea zu Marc: „Ich bin für Klimaschutz. Aber was ist, wenn ein Rettungswagen durch muss?“", r:1,
-   e:"<b>Kopf.</b> Lea fragt nach den Folgen der Aktion für andere. Marc („Wir handeln nach unserer Überzeugung“) denkt gesinnungsethisch."},
-  {t:"mc", s:15, q:"Wie heißt das berühmte Buch von Hans Jonas aus dem Jahr 1979?",
-   a:["Politik als Beruf","Das Prinzip Verantwortung","Kritik der reinen Vernunft","Der Staat"], r:1,
-   e:"<b>„Das Prinzip Verantwortung“</b>: eine Ethik für das technologische Zeitalter mit einem neuen kategorischen Imperativ."},
-  {t:"poll", s:14, q:"Gewissensfrage: Dein Freund ist nervös und fragt, ob sein Referat gut war. Es war ziemlich schwach. Was sagst du?",
-   a:["Die Wahrheit: „War leider schwach.“","Aufmuntern: „War echt gut!“"], pa:[0,1],
-   e:"Keine falsche Antwort! <b>Herz</b> (Prinzip Ehrlichkeit, wie Kant): nicht lügen. <b>Kopf</b> (Folgen): Aufmuntern hilft ihm vielleicht mehr. Viele würden ehrlich <i>und</i> nett sein, also Herz <i>und</i> Kopf."},
-  {t:"mc", s:15, q:"Was ist ein typischer Kritikpunkt an der Verantwortungsethik?",
-   a:["Folgen sind oft nicht vorhersehbar","Sie ignoriert alle Folgen","Sie verbietet jede Lüge","Sie gilt nur für Kinder"], r:0,
-   e:"Niemand kennt die Zukunft sicher. Außerdem droht: <b>Der Zweck heiligt die Mittel</b>, dann werden Werte verhandelbar."},
-  {t:"mc", s:15, q:"Was bedeutet „Fernethik“?",
-   a:["Verantwortung nur für die eigene Familie","Verantwortung für Fremde, Umwelt und künftige Generationen","Ethik-Unterricht per Fernstudium","Regeln für Fernreisen"], r:1,
-   e:"Die <b>Fernethik</b> erweitert die Verantwortung über das unmittelbare Umfeld hinaus: global und in die Zukunft. Die <b>Nahethik</b> betrifft Familie, Freunde, Nachbarn."},
-  {t:"mc", s:18, fin:true, q:"Finale: Was sagt Max Weber selbst über das Verhältnis der beiden Ethiken?",
-   a:["Gesinnung ist immer besser","Verantwortung ersetzt die Gesinnung","Sie sind Ergänzungen, die zusammengehören","Beide sind überflüssig"], r:2,
-   e:"Weber: keine absoluten Gegensätze, sondern <b>Ergänzungen, die zusammen erst den echten Menschen ausmachen</b>. Herz <i>und</i> Kopf!"}
-];
-
-var LETTERS=["A","B","C","D"];
-var COLORS=["var(--a)","var(--b)","var(--c)","var(--d)"];
-var HEX=["#8B3FD9","#0A8FB0","#D9820B","#1E9A4B"];
-var TEAM=[{n:"Team Herz",s:"Gesinnung",i:"❤",c:"#E0482F",d:"#B8321C"},{n:"Team Kopf",s:"Verantwortung",i:"⚙",c:"#2752C7",d:"#1B3C99"}];
-
-/* Formen für A–D */
-function shape(n,fill){
-  fill=fill||"#fff";
-  if(n===0) return '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 5 L36 34 H4Z" fill="'+fill+'"/></svg>';
-  if(n===1) return '<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3 L37 20 L20 37 L3 20Z" fill="'+fill+'"/></svg>';
-  if(n===2) return '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="'+fill+'"/></svg>';
-  return '<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="5" width="30" height="30" rx="3" fill="'+fill+'"/></svg>';
+/* ---------------------------------------------------------- Symbole */
+function heartIco(size,col){
+  return '<svg class="ico beat" width="'+size+'" height="'+size+'" viewBox="0 0 100 100" aria-hidden="true">'+
+    '<circle cx="50" cy="50" r="47" fill="'+(col||"#E0482F")+'"/>'+
+    '<circle cx="50" cy="50" r="38" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2" stroke-dasharray="3 5"/>'+
+    '<path d="M50 76 C22 58 20 38 32 30 C41 24 48 30 50 36 C52 30 59 24 68 30 C80 38 78 58 50 76Z" fill="#fff"/>'+
+    '<path d="M50 14 L54 24 L46 24Z" fill="#fff"/></svg>';
 }
-
-/* Vorbilder. Philosophen heißen immer gleich, Berufe passen sich an. */
-var ARCH=[
- {n:"Kant",       w:"Kant",        m:"Kant",        b:"Lügt nie. Wirklich nie.",           c:"#3F4A6B", d:"#2C344D", toga:0, sig:4},
- {n:"Weber",      w:"Weber",       m:"Weber",       b:"Hat beiden den Namen gegeben.",     c:"#5B4636", d:"#433326", toga:0, sig:2},
- {n:"Jonas",      w:"Jonas",       m:"Jonas",       b:"Denkt an 2100.",                    c:"#2E6B5E", d:"#1F4D43", toga:0, sig:1},
- {n:"Platon",     w:"Platon",      m:"Platon",      b:"Philosoph auf dem Thron.",          c:"#EDE6D6", d:"#C9BFA8", toga:1, sig:2},
- {n:"Aristoteles",w:"Aristoteles", m:"Aristoteles", b:"Tugend ist Übungssache.",           c:"#F1E9D8", d:"#CDBF9E", toga:1, sig:3},
- {n:"Sokrates",   w:"Sokrates",    m:"Sokrates",    b:"Weiß, dass er nichts weiß.",        c:"#E8DCC4", d:"#BFAE8A", toga:1, sig:2},
- {n:"Mill",       w:"Mill",        m:"Mill",        b:"Größtes Glück, größte Zahl.",       c:"#6B3A4A", d:"#4E2835", toga:0},
- {n:"Arendt",     w:"Arendt",      m:"Arendt",      b:"Denken ohne Geländer.",             c:"#44355F", d:"#312646", toga:0},
- {n:"Ärzt:in",    w:"Ärztin",      m:"Arzt",        b:"Mitgefühl und Studien.",            c:"#F3F5F6", d:"#C7D0D4", toga:0, coat:1},
- {n:"Aktivist:in",w:"Aktivistin",  m:"Aktivist",    b:"Klebt schon.",                      c:"#2F8F4E", d:"#206A38", toga:0},
- {n:"Forscher:in",w:"Forscherin",  m:"Forscher",    b:"Trainiert die KI.",                 c:"#0E7490", d:"#0A5569", toga:0},
- {n:"Richter:in", w:"Richterin",   m:"Richter",     b:"Wägt ab. Beruflich.",               c:"#1F1F2A", d:"#0F0F16", toga:0}
-];
-function archName(i,typ){ var A=ARCH[i]||ARCH[0]; return typ===1?A.w:(typ===2?A.m:A.n); }
-
-var TYP  = ["Neutral","Weiblich","Männlich"];
-var HAIR = [["Kurz","#2E2621"],["Blond","#D1A94E"],["Lang","#241E1A"],["Rot","#A6472A"],["Locken","#4A3220"],["Grau","#B4B8BA"]];
-var SKIN = ["#F2CCAB","#DDA87C","#B07A50","#7A5136"];
-var DANCE = [["Normal","🧍"],["Wippen","🕺"],["Arme hoch","🙌"],["Sirtaki","💃"],["Jubeln","🎉"],["Denker","🤔"]];
-var EXTRA = ["Nichts","Brille","Bart","Lorbeer","Perücke","Heiligenschein","Krone"];
-
-var EMOJI=["👏","🔥","🤯","😂","🤔","❤️","🧠"];
-var SHOUTS=["Kategorisch!","Kommt drauf an!","Gut gemeint!","Sapere aude!","Einspruch!","Bravo!"];
-var OFFICES=[
- ["Philosophenkönig:in","Platon wollte, dass Philosophen herrschen. Heute ist es so weit."],
- ["Hüter:in des Imperativs","Kant wäre stolz: Pflicht erfüllt, ohne zu lügen."],
- ["Prinzip Verantwortung","Hans Jonas nickt: an die Folgen gedacht."],
- ["Webers Musterschüler:in","Herz und Kopf. Genau so, wie Weber es wollte."]
-];
-var FILLTITLES=["Stille Denkerin, stiller Denker","Tugend im Training","Kommt von hinten","Nie aufgegeben","Guter Wille","Abwägungsprofi",
-  "Hört genau zu","Bleibt dran","Sokratische Frage","Gutes Gespür","Kategorisch dabei","Hat Folgen bedacht"];
-
-/* ---------------------------------------------------------------- Helfer */
-var root=document.getElementById("root"), toastBox=document.getElementById("toasts");
-var floatLayer=document.getElementById("float"), jfxLayer=document.getElementById("jfx");
-function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-function strip(s){ return String(s).replace(/<[^>]+>/g,""); }
-function h(x){root.innerHTML=x;}
-function byId(i){return document.getElementById(i);}
-function on(i,f){var e=byId(i);if(e)e.onclick=f;}
-function each(s,f){Array.prototype.forEach.call(document.querySelectorAll(s),f);}
-function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-function arr(x){return Array.isArray(x)?x:(x==null?[]:[x]);}
-function store(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); }catch(e){ return null; } }
-function nOpts(q){ return q.t==="gv"?2:q.a.length; }
-function secsOf(q){ return (q.s||20); }
-var crestSVG='<svg class="crest" viewBox="0 0 40 40" aria-hidden="true">'+
-  '<path d="M20 36 C6 27 4 17 10 12 C14 9 18 11 20 15Z" fill="#E0482F"/>'+
-  '<path d="M20 36 C34 27 36 17 30 12 C26 9 22 11 20 15Z" fill="#2752C7"/>'+
-  '<rect x="18.8" y="3" width="2.4" height="30" rx="1.2" fill="#17172B"/>'+
-  '<rect x="8" y="6" width="24" height="2.4" rx="1.2" fill="#17172B"/><circle cx="20" cy="5" r="2.6" fill="#C4952B"/></svg>';
-function toast(emoji, text){
-  var d=document.createElement("div"); d.className="toast"; d.innerHTML='<i style="font-style:normal">'+emoji+'</i>'+esc(text);
-  toastBox.appendChild(d);
-  setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); }, 2200);
-  while(toastBox.children.length>4) toastBox.removeChild(toastBox.firstChild);
+function headIco(size,col){
+  return '<svg class="ico" width="'+size+'" height="'+size+'" viewBox="0 0 100 100" aria-hidden="true">'+
+    '<circle cx="50" cy="50" r="47" fill="'+(col||"#2752C7")+'"/>'+
+    '<g class="ripple" fill="none" stroke="#fff" stroke-width="3"><circle cx="50" cy="52" r="30"/><circle cx="50" cy="52" r="30"/><circle cx="50" cy="52" r="30"/></g>'+
+    '<circle cx="50" cy="52" r="17" fill="none" stroke="#fff" stroke-width="9" stroke-dasharray="6.7 6.65"/>'+
+    '<circle cx="50" cy="52" r="15" fill="#fff"/><circle cx="50" cy="52" r="6" fill="'+(col||"#2752C7")+'"/></svg>';
 }
-var badge=null;
-function showBadge(t){ if(badge){ badge.textContent=t; return; } badge=document.createElement("div"); badge.className="offline"; badge.textContent=t; document.body.appendChild(badge); }
-function hideBadge(){ if(badge){ badge.remove(); badge=null; } }
-
-/* ============================================================== Figuren */
-function parseAc(s){
-  var p=String(s==null?"":s).split(",");
-  function g(i,max){ var v=parseInt(p[i],10); if(isNaN(v)) v=0; return clamp(v,0,max); }
-  /* Typ, Frisur, Haut, Haltung, Extra */
-  return [g(0,2), g(1,5), g(2,3), g(3,5), g(4,6)];
-}
-function acStr(a){ return a.join(","); }
-function hairBack(i,c){
-  if(i===2) return '<path d="M33 40 L33 94 Q39 101 43 90 L43 44 Z M87 40 L87 94 Q81 101 77 90 L77 44 Z" fill="'+c+'"/>';
-  if(i===3) return '<path d="M33 40 L33 97 Q39 104 44 91 L44 44 Z M87 40 L87 97 Q81 104 76 91 L76 44 Z" fill="'+c+'"/>';
-  return '';
-}
-function hairTop(i,c){
-  if(i===1) return '<path d="M33 50 Q33 23 60 23 Q87 23 87 50 Q80 34 68 37 Q57 30 44 39 Q37 41 33 50 Z" fill="'+c+'"/>';
-  if(i===2||i===3) return '<path d="M33 51 Q33 22 60 22 Q87 22 87 51 Q79 36 60 34 Q41 36 33 51 Z" fill="'+c+'"/>';
-  if(i===4) return '<g fill="'+c+'"><circle cx="39" cy="43" r="11"/><circle cx="50" cy="31" r="12"/><circle cx="70" cy="31" r="12"/><circle cx="81" cy="43" r="11"/></g>';
-  if(i===5) return '<path d="M35 47 Q37 28 60 28 Q83 28 85 47 Q77 39 60 38 Q43 39 35 47 Z" fill="'+c+'"/>';
-  return '<path d="M34 48 Q34 24 60 24 Q86 24 86 48 Q79 35 60 33 Q41 35 34 48 Z" fill="'+c+'"/>';
-}
-/* Extras, die über dem Gesicht liegen */
-function extraFace(i,hc){
-  if(i===1) return '<g fill="none" stroke="#2A3136" stroke-width="2.3"><circle cx="50" cy="53" r="8"/><circle cx="70" cy="53" r="8"/><path d="M58 53h4"/></g>';
-  if(i===2) return '<path d="M38 58 Q40 86 60 88 Q80 86 82 58 Q76 72 60 72 Q44 72 38 58Z" fill="'+hc+'"/>'+
-                   '<path d="M52 66 Q60 70 68 66" stroke="#8A4C3C" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
-  return '';
-}
-function extraTop(i){
-  if(i===3) return '<g fill="#5C8A3A"><path d="M34 44 Q36 26 52 22 Q44 30 42 42Z"/><path d="M86 44 Q84 26 68 22 Q76 30 78 42Z"/>'+
-     '<ellipse cx="38" cy="36" rx="4" ry="7" transform="rotate(-30 38 36)"/><ellipse cx="45" cy="27" rx="4" ry="7" transform="rotate(-60 45 27)"/>'+
-     '<ellipse cx="82" cy="36" rx="4" ry="7" transform="rotate(30 82 36)"/><ellipse cx="75" cy="27" rx="4" ry="7" transform="rotate(60 75 27)"/></g>';
-  if(i===4) return '<g fill="#F2F1EC" stroke="#D6D3C8" stroke-width="1"><path d="M33 50 Q31 20 60 19 Q89 20 87 50 Q80 32 60 31 Q40 32 33 50Z"/>'+
-     '<circle cx="32" cy="50" r="7"/><circle cx="32" cy="63" r="7"/><circle cx="88" cy="50" r="7"/><circle cx="88" cy="63" r="7"/></g>';
-  if(i===5) return '<ellipse class="halo" cx="60" cy="14" rx="22" ry="6" fill="none" stroke="#E8C052" stroke-width="4"/>';
-  if(i===6) return '<path d="M38 28 L38 11 L48 20 L60 6 L72 20 L82 11 L82 28 Z" fill="#E1B64A" stroke="#9C7C36" stroke-width="1.5"/>';
-  return '';
-}
-var COATS=[
-  {p:"M36 96 Q60 84 84 96 L88 156 Q60 164 32 156 Z", a1:25, a2:81},
-  {p:"M39 96 Q60 86 81 96 L88 150 Q60 158 32 150 Z", a1:28, a2:78},
-  {p:"M31 96 Q60 82 89 96 L90 155 Q60 162 30 155 Z", a1:22, a2:84}
-];
-function legsSVG(t, skin, dk, toga){
-  if(toga){
-    return '<path d="M34 140 L86 140 L92 200 L28 200 Z" fill="'+dk+'"/>'+
-      '<path d="M40 150 L44 198 M60 146 L60 200 M80 150 L76 198" stroke="rgba(0,0,0,.1)" stroke-width="2"/>'+
-      '<rect x="44" y="198" width="12" height="10" rx="3" fill="'+skin+'"/><rect x="64" y="198" width="12" height="10" rx="3" fill="'+skin+'"/>'+
-      '<path d="M42 208 h16 M62 208 h16" stroke="#7A5432" stroke-width="4" stroke-linecap="round"/>';
-  }
-  if(t===1){
-    return '<path d="M37 143 L83 143 L93 181 L27 181 Z" fill="'+dk+'"/>'+
-      '<rect x="49" y="178" width="9" height="30" rx="4.5" fill="'+skin+'"/><rect x="62" y="178" width="9" height="30" rx="4.5" fill="'+skin+'"/>'+
-      '<ellipse cx="53.5" cy="209" rx="9" ry="4.5" fill="#15191B"/><ellipse cx="66.5" cy="209" rx="9" ry="4.5" fill="#15191B"/>';
-  }
-  var w=(t===2)?14:12, x1=(t===2)?44:46, x2=62;
-  return '<rect x="'+x1+'" y="146" width="'+w+'" height="62" rx="5.5" fill="#2A3136"/><rect x="'+x2+'" y="146" width="'+w+'" height="62" rx="5.5" fill="#2A3136"/>'+
-    '<ellipse cx="'+(x1+w/2)+'" cy="209" rx="10" ry="4.5" fill="#15191B"/><ellipse cx="'+(x2+w/2)+'" cy="209" rx="10" ry="4.5" fill="#15191B"/>';
-}
-function pin(tm){
-  if(tm!==0 && tm!==1) return '';
-  var T=TEAM[tm];
-  return '<circle cx="73" cy="112" r="9" fill="'+T.c+'" stroke="#fff" stroke-width="2"/>'+
-    (tm===0 ? '<path d="M73 117 C66 112 66 107 69.5 105.5 C71.5 104.8 72.6 106 73 107 C73.4 106 74.5 104.8 76.5 105.5 C80 107 80 112 73 117Z" fill="#fff"/>'
-            : '<circle cx="73" cy="112" r="4.2" fill="none" stroke="#fff" stroke-width="2.4" stroke-dasharray="2.2 1.6"/><circle cx="73" cy="112" r="1.6" fill="#fff"/>');
-}
-function figSVG(ar, ac, tm, cls){
-  var A = (ar===undefined||ar===null||ar<0) ? {c:"#8C9397", d:"#6D7478", toga:0} : (ARCH[clamp(ar|0,0,ARCH.length-1)]||ARCH[0]);
-  var o=parseAc(ac), C=COATS[o[0]]||COATS[0];
-  /* Ohne eigenes Extra bekommt jedes Vorbild sein Markenzeichen */
-  if(o[4]===0 && A.sig) o[4]=A.sig;
-  var coat=A.c, dk=A.d, skin=SKIN[o[2]]||SKIN[0], hc=(HAIR[o[1]]||HAIR[0])[1];
-  var lash = (o[0]===1) ? '<path d="M45.5 48.6 L47.6 50.4 M50 47.6 L50 50 M54.5 48.6 L52.4 50.4 M65.5 48.6 L67.6 50.4 M70 47.6 L70 50 M74.5 48.6 L72.4 50.4" stroke="#1B2124" stroke-width="1.6" stroke-linecap="round"/>' : '';
-  var chest;
-  if(A.toga){
-    chest='<path d="'+C.p+'" fill="'+coat+'"/>'+
-      '<path d="M40 94 Q62 118 84 150 L74 156 Q58 124 34 104Z" fill="'+dk+'"/>'+
-      '<path d="M50 90 Q60 98 70 90" stroke="'+dk+'" stroke-width="3" fill="none"/>'+
-      '<rect x="36" y="136" width="50" height="5" rx="2.5" fill="#C4952B" opacity=".8"/>';
-  } else if(A.coat){
-    chest='<path d="'+C.p+'" fill="'+coat+'"/>'+
-      '<path d="M52 89 L60 104 L68 89 L69 150 L51 150 Z" fill="#7FB3C8"/>'+
-      '<path d="M52 89 L60 104 L49 124 L42 97 Z" fill="'+dk+'"/><path d="M68 89 L60 104 L71 124 L78 97 Z" fill="'+dk+'"/>'+
-      '<path d="M44 110 Q40 130 50 134" stroke="#39434A" stroke-width="3" fill="none"/><circle cx="50" cy="135" r="4" fill="#39434A"/>';
+/* Stilisierte Büsten für die Ahnengalerie */
+function bust(kind){
+  var skin="#E8C9A6", s="";
+  var hair={plato:"#8A8580",ari:"#6E6259",kant:"#EDEDEA",mill:"#5A4A3E",weber:"#3B302A",jonas:"#9A9894"}[kind];
+  s+='<rect width="120" height="120" fill="none"/>';
+  if(kind==="plato"||kind==="ari"){
+    s+='<path d="M20 120 Q24 88 60 84 Q96 88 100 120Z" fill="#F4F1EA"/><path d="M34 120 Q44 96 76 90 L86 120Z" fill="#E4DED0"/>';
   } else {
-    chest='<path d="'+C.p+'" fill="'+coat+'"/>'+
-      '<path d="M52 89 L60 104 L68 89 L69 121 L51 121 Z" fill="#F7F8F6"/>'+
-      '<path d="M52 89 L60 104 L49 124 L42 97 Z" fill="'+dk+'"/><path d="M68 89 L60 104 L71 124 L78 97 Z" fill="'+dk+'"/>'+
-      '<path d="M60 104 L55.5 111 L60 139 L64.5 111 Z" fill="'+(tm===1?"#2752C7":"#E0482F")+'"/>';
+    s+='<path d="M18 120 Q22 88 60 84 Q98 88 102 120Z" fill="#2F3340"/><path d="M52 86 L60 104 L68 86Z" fill="#fff"/>';
+    if(kind==="kant") s+='<path d="M50 86 Q60 96 70 86 L66 100 L54 100Z" fill="#fff"/>';
+    else s+='<path d="M57 92 L60 110 L63 92Z" fill="#8E2A2A"/>';
   }
-  var sleeve = A.toga ? skin : dk;
-  return '<svg class="fig '+(cls||"")+'" viewBox="0 0 120 220" aria-hidden="true">'+
-    '<ellipse cx="60" cy="211" rx="31" ry="6" fill="#121618" opacity=".13"/>'+
-    legsSVG(o[0], skin, dk, A.toga)+
-    '<g class="up">'+
-      '<g class="a1"><rect x="'+C.a1+'" y="96" width="14" height="56" rx="7" fill="'+sleeve+'"/><circle cx="'+(C.a1+7)+'" cy="155" r="7.5" fill="'+skin+'"/></g>'+
-      '<g class="a2"><rect x="'+C.a2+'" y="96" width="14" height="56" rx="7" fill="'+dk+'"/><circle cx="'+(C.a2+7)+'" cy="155" r="7.5" fill="'+skin+'"/></g>'+
-      '<rect x="53" y="74" width="14" height="20" fill="'+skin+'"/><rect x="53" y="74" width="14" height="20" fill="#121618" opacity=".14"/>'+
-      hairBack(o[1],hc)+chest+pin(tm)+
-      '<g class="hd">'+
-        '<ellipse cx="35" cy="57" rx="4.5" ry="6" fill="'+skin+'"/><ellipse cx="85" cy="57" rx="4.5" ry="6" fill="'+skin+'"/>'+
-        '<ellipse cx="60" cy="54" rx="25" ry="27" fill="'+skin+'"/>'+
-        (o[4]===4 ? '' : hairTop(o[1],hc))+
-        '<ellipse cx="50" cy="53" rx="2.9" ry="3.6" fill="#1B2124"/><ellipse cx="70" cy="53" rx="2.9" ry="3.6" fill="#1B2124"/>'+lash+
-        '<path d="M51 66 Q60 73 69 66" stroke="#8A4C3C" stroke-width="2.6" fill="none" stroke-linecap="round"/>'+
-        extraFace(o[4],hc)+extraTop(o[4])+
-      '</g>'+
-    '</g></svg>';
+  s+='<rect x="52" y="66" width="16" height="22" fill="'+skin+'"/>';
+  s+='<ellipse cx="60" cy="50" rx="22" ry="25" fill="'+skin+'"/>';
+  if(kind==="kant"){ s+='<path d="M36 50 Q36 22 60 22 Q84 22 84 50 Q80 36 60 34 Q40 36 36 50Z" fill="'+hair+'"/>'+
+     '<circle cx="36" cy="54" r="7" fill="'+hair+'"/><circle cx="84" cy="54" r="7" fill="'+hair+'"/>'; }
+  else if(kind==="jonas"){ s+='<path d="M38 42 Q44 26 60 26 Q76 26 82 42 Q74 34 60 33 Q46 34 38 42Z" fill="'+hair+'"/>'+
+     '<g fill="none" stroke="#222" stroke-width="2.4"><circle cx="51" cy="50" r="7"/><circle cx="69" cy="50" r="7"/><path d="M58 50h4"/></g>'; }
+  else { s+='<path d="M38 46 Q38 24 60 24 Q82 24 82 46 Q76 34 60 32 Q44 34 38 46Z" fill="'+hair+'"/>'; }
+  if(kind==="plato"||kind==="ari"||kind==="weber"){
+    s+='<path d="M40 56 Q42 86 60 88 Q78 86 80 56 Q74 70 60 70 Q46 70 40 56Z" fill="'+hair+'"/>';
+  }
+  if(kind==="plato"||kind==="ari"){ s+='<path d="M36 38 Q60 20 84 38" fill="none" stroke="#5C8A3A" stroke-width="5" stroke-dasharray="6 3" stroke-linecap="round"/>'; }
+  if(kind==="mill"){ s+='<path d="M38 56 Q36 72 44 76" stroke="'+hair+'" stroke-width="6" fill="none"/><path d="M82 56 Q84 72 76 76" stroke="'+hair+'" stroke-width="6" fill="none"/>'; }
+  if(kind!=="jonas"){ s+='<circle cx="51" cy="50" r="2.6" fill="#222"/><circle cx="69" cy="50" r="2.6" fill="#222"/>'; }
+  if(kind!=="plato"&&kind!=="ari"&&kind!=="weber"){ s+='<path d="M52 64 Q60 69 68 64" stroke="#8A4C3C" stroke-width="2.4" fill="none" stroke-linecap="round"/>'; }
+  return '<svg viewBox="0 0 120 120" width="100%" height="100%" aria-hidden="true">'+s+'</svg>';
 }
-function danceOf(ac){ return parseAc(ac)[3]; }
-function clearDance(f){ f.classList.remove("dn1","dn2","dn3","dn4","dn5"); }
-
-/* ============================================================== Akademie
-   Angelehnt an Raffaels „Schule von Athen“: Bogen, Säulen, drei Stufen. */
-var ROWS=[
-  {feet:60, fh:22, z:1, bt:59.2, bh:6.5,  arc:0, gap:7.6,  fs:"clamp(8px,.6vw,12px)"},
-  {feet:78, fh:30, z:2, bt:77.2, bh:8.5,  arc:0, gap:9.4,  fs:"clamp(10px,.8vw,15px)"},
-  {feet:97, fh:40, z:3, bt:96.2, bh:12,   arc:0, gap:11.8, fs:"clamp(12px,1vw,19px)"}
-];
-function splitRows(n){
-  if(n<=8) return [0,0,n];
-  if(n<=16){ var f=Math.min(8,Math.ceil(n/2)); return [0,n-f,f]; }
-  var rest=n-8, m=Math.min(11,Math.ceil(rest*0.55));
-  return [rest-m, m, 8];
-}
-function slotsFor(ri, cnt){
-  var r=ROWS[ri], out=[], gap=r.gap;
-  if(cnt>1 && (cnt-1)*gap > 86) gap = 86/(cnt-1);
-  for(var i=0;i<cnt;i++) out.push({x:50+(i-(cnt-1)/2)*gap, y:r.feet, ri:ri});
-  return out;
-}
-function wallSVG(dusk){
-  var sky1=dusk?"#3B2F5C":"#CFE0EA", sky2=dusk?"#E08A5B":"#F4EFE2";
-  var st=dusk?"#E9DFCB":"#F7F1E3", st2=dusk?"#CDBF9F":"#E6DAC0", sh=dusk?"#9C8C6E":"#CDBF9F";
-  var cols="";
-  [70,190,810,930].forEach(function(x){
-    cols+='<rect x="'+(x-24)+'" y="40" width="48" height="560" fill="'+st+'"/>'+
-      '<rect x="'+(x-24)+'" y="40" width="48" height="560" fill="url(#flute)" opacity=".55"/>'+
-      '<rect x="'+(x-32)+'" y="30" width="64" height="16" fill="'+st2+'"/>';
-  });
-  return '<svg viewBox="0 0 1000 600" preserveAspectRatio="xMidYMin slice" aria-hidden="true">'+
-    '<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+sky1+'"/><stop offset="1" stop-color="'+sky2+'"/></linearGradient>'+
-    '<linearGradient id="flute" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".12"/><stop offset=".3" stop-color="#fff" stop-opacity=".5"/><stop offset="1" stop-color="#000" stop-opacity=".14"/></linearGradient></defs>'+
-    '<rect width="1000" height="600" fill="'+st2+'"/>'+
-    /* großer Bogen mit Himmel */
-    '<path d="M250 600 L250 250 A250 250 0 0 1 750 250 L750 600Z" fill="url(#sky)"/>'+
-    (dusk?'<circle cx="500" cy="330" r="70" fill="#FFD27A" opacity=".75"/><circle cx="500" cy="330" r="130" fill="#FFD27A" opacity=".18"/>':
-          '<circle cx="610" cy="170" r="40" fill="#fff" opacity=".7"/><ellipse cx="400" cy="200" rx="70" ry="16" fill="#fff" opacity=".6"/>')+
-    /* hintere Bögen */
-    '<path d="M330 600 L330 330 A170 170 0 0 1 670 330 L670 600" fill="none" stroke="'+st+'" stroke-width="22" opacity=".85"/>'+
-    '<path d="M400 600 L400 390 A100 100 0 0 1 600 390 L600 600" fill="none" stroke="'+st+'" stroke-width="14" opacity=".7"/>'+
-    /* Kassetten im Gewölbe */
-    '<path d="M250 250 A250 250 0 0 1 750 250" fill="none" stroke="'+sh+'" stroke-width="30" stroke-dasharray="18 14" opacity=".55"/>'+
-    '<path d="M230 600 L230 250 A270 270 0 0 1 770 250 L770 600" fill="none" stroke="'+st+'" stroke-width="16"/>'+
-    /* Nischen mit Statuen */
-    '<path d="M110 560 L110 380 A40 40 0 0 1 190 380 L190 560Z" fill="'+sh+'" opacity=".6"/>'+
-    '<path d="M810 560 L810 380 A40 40 0 0 1 890 380 L890 560Z" fill="'+sh+'" opacity=".6"/>'+
-    '<g fill="'+st+'"><circle cx="150" cy="410" r="14"/><path d="M132 540 Q134 430 150 424 Q166 430 168 540Z"/>'+
-    '<circle cx="850" cy="410" r="14"/><path d="M832 540 Q834 430 850 424 Q866 430 868 540Z"/></g>'+
-    cols+
-    '<rect y="590" width="1000" height="10" fill="'+sh+'"/>'+
-  '</svg>';
-}
-function hallHTML(entries, opts){
-  opts=opts||{};
-  var parts=splitRows(entries.length), byRow=[[],[],[]], idx=0;
-  [2,1,0].forEach(function(ri){ var sl=slotsFor(ri,parts[ri]); for(var i=0;i<parts[ri];i++) byRow[ri].push({e:entries[idx++], s:sl[i]}); });
-  var html='<div class="hall'+(opts.dusk?" dusk":"")+'"><div class="wall">'+wallSVG(opts.dusk)+'</div>';
-  [0,1,2].forEach(function(ri){
-    var r=ROWS[ri];
-    html+='<div class="hrow" style="z-index:'+r.z+'">'+((byRow[ri].length||ri===2)?'<div class="stepx" style="top:'+r.bt+'%;height:'+r.bh+'%"></div>':'');
-    byRow[ri].forEach(function(o,k){
-      html+='<div class="figw t'+(o.e.tm|0)+(k%2?" alt":"")+(o.e.glow?" gold1":"")+'" data-fig="'+esc(o.e.id)+'" '+
-        'style="left:'+o.s.x.toFixed(2)+'%;top:'+o.s.y.toFixed(2)+'%;height:'+r.fh+'%;font-size:'+r.fs+';animation-delay:'+(k*0.045).toFixed(2)+'s">'+
-        (o.e.glow?'<span class="glow"></span>':'')+(o.e.tag?'<span class="rk">'+esc(o.e.tag)+'</span>':'')+
-        (o.e.tt?'<span class="tt">'+esc(o.e.tt)+'</span>':'')+(opts.noNames?'':'<span class="nm">'+esc(o.e.n)+'</span>')+
-        figSVG(o.e.ar,o.e.ac,o.e.tm)+'</div>';
-    });
-    html+='</div>';
-  });
-  return html+'</div>';
-}
-
-/* ============================================================== Tauziehen */
-function tugHTML(ts, big, id){
-  var a=ts[0].avg, b=ts[1].avg, tot=a+b;
-  var p = tot ? (100 - a/tot*100) : 50;          /* führt Herz, rutscht der Knoten nach links */
-  p = 8 + p*0.84;
-  return '<div class="tug'+(big?" big":"")+'"'+(id?' id="'+id+'"':'')+'>'+
-    '<div class="ts t0"><span class="ti">❤</span><span>'+(big?'Team Herz':'Herz')+' <b>'+Math.round(a)+'</b><small>Ø '+ts[0].n+' Pers.</small></span></div>'+
-    '<div class="rope"><div class="ln"></div><div class="mid"></div><div class="knot" style="--p:'+p.toFixed(1)+'%"></div></div>'+
-    '<div class="ts t1"><span class="ti">⚙</span><span>'+(big?'Team Kopf':'Kopf')+' <b>'+Math.round(b)+'</b><small>Ø '+ts[1].n+' Pers.</small></span></div>'+
+function tally(id,a,b,ha,hb){
+  return '<div class="tally" data-tally="'+id+'">'+
+    '<button class="tside a" data-side="a"><span class="tm" data-minus="a">−</span>'+
+      '<span class="tl">'+a+'</span><span class="tn" data-n="a">0</span><span class="th">'+(ha||"Taste 1 · Klick")+'</span></button>'+
+    '<div class="rope"><div class="ln"></div><div class="mid"></div><div class="knot"></div>'+
+      '<span class="pct l" data-p="a">–</span><span class="pct r" data-p="b">–</span></div>'+
+    '<button class="tside b" data-side="b"><span class="tm" data-minus="b">−</span>'+
+      '<span class="tl">'+b+'</span><span class="tn" data-n="b">0</span><span class="th">'+(hb||"Taste 2 · Klick")+'</span></button>'+
   '</div>';
 }
-function teamStats(ps){
-  var t=[{n:0,sum:0,avg:0},{n:0,sum:0,avg:0}];
-  ps.forEach(function(p){ var k=p.tm===1?1:0; t[k].n++; t[k].sum+=(p.s||0); });
-  t.forEach(function(x){ x.avg = x.n ? x.sum/x.n : 0; });
-  return t;
-}
 
-/* ============================================================== Klang */
-var actx=null, muted=(store("hk-mute")==="1");
-function audio(){ if(muted) return null; try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); return actx; }catch(e){ return null; } }
-function tone(f,st,du,vo,ty){
-  var c=audio(); if(!c) return;
-  var o=c.createOscillator(), g=c.createGain(); o.type=ty||"sine"; o.frequency.value=f;
-  var t=c.currentTime+st; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vo,t+0.012); g.gain.exponentialRampToValueAtTime(0.0001,t+du);
-  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+du+0.05);
-}
-function sndStart(){ tone(523.25,0,.25,.14,"triangle"); tone(783.99,.12,.4,.14,"triangle"); }
-function sndReveal(){ tone(392,0,.2,.2,"triangle"); tone(523.25,.1,.35,.16,"triangle"); }
-function sndFanfare(){ [523.25,659.25,783.99,1046.5].forEach(function(f,i){ tone(f,i*.14,.55,.16,"triangle"); }); }
-function sndBlip(){ tone(880,0,.09,.06); }
-function sndTick(){ tone(1200,0,.05,.05,"square"); }
+/* ============================================================ FOLIEN */
+var SL=[];
+function slide(o){ SL.push(o); }
 
-var CONFCOL=["#E0482F","#2752C7","#C4952B","#2E8B57","#8B3FD9","#0A8FB0"];
-function confetti(n){
-  var box=byId("fx"); if(!box) return;
-  for(var i=0;i<(n||70);i++){
-    var d=document.createElement("span"); d.className="conf";
-    d.style.left=(Math.random()*100).toFixed(2)+"vw"; d.style.background=CONFCOL[i%CONFCOL.length];
-    d.style.animationDuration=(2.6+Math.random()*1.8).toFixed(2)+"s"; d.style.animationDelay=(Math.random()*.5).toFixed(2)+"s";
-    box.appendChild(d);
-    (function(x){ setTimeout(function(){ if(x.parentNode) x.parentNode.removeChild(x); },5200); })(d);
-  }
-}
-
-/* ============================================================== Netz */
-var BROKERS=["wss://broker.emqx.io:8084/mqtt","wss://broker.hivemq.com:8884/mqtt","wss://test.mosquitto.org:8081/mqtt"];
-var cli=null, bi=0, ROOM="", IS_HOST=false, onState=null, onMsg=null, connected=false, onReconnect=null;
-function tS(){ return "herzkopf/"+ROOM+"/s"; }
-function tM(){ return "herzkopf/"+ROOM+"/m"; }
-var wantConnect=false, reconnTimer=null;
-function netConnect(ready){
-  if(typeof mqtt==="undefined"){ showBadge("Keine Internetverbindung"); return; }
-  wantConnect=true;
-  var tried=0, first=true;
-  function go(){
-    if(!wantConnect) return;
-    if(cli){ try{ cli.end(true); }catch(e){} cli=null; }
-    var c=mqtt.connect(BROKERS[bi],{clientId:"hk"+Math.random().toString(16).slice(2,10),clean:true,connectTimeout:6000,reconnectPeriod:0,keepalive:20});
-    var settled=false;
-    c.on("connect",function(){
-      settled=true; connected=true; cli=c; tried=0; hideBadge();
-      c.subscribe([tS(), tM()], {qos:0});
-      if(first){ first=false; if(ready) ready(); } else if(IS_HOST && onReconnect) onReconnect();
-    });
-    c.on("message",function(topic,payload){
-      var m=null; try{ m=JSON.parse(payload.toString()); }catch(e){ return; }
-      if(!m) return;
-      if(topic===tS() && onState) onState(m); else if(topic===tM() && onMsg) onMsg(m);
-    });
-    c.on("error",function(){ try{ c.end(true); }catch(e){} });
-    c.on("close",function(){
-      connected=false;
-      if(!settled){ tried++; bi=(bi+1)%BROKERS.length;
-        if(tried<BROKERS.length*3) retry(700); else { showBadge("Keine Verbindung — Internet prüfen"); retry(4000); } return; }
-      showBadge("Verbindung kommt gleich zurück …"); retry(900);
-    });
-  }
-  function retry(ms){ if(reconnTimer) clearTimeout(reconnTimer); reconnTimer=setTimeout(go, ms); }
-  function kick(){ if(wantConnect && !connected){ if(reconnTimer) clearTimeout(reconnTimer); go(); } }
-  document.addEventListener("visibilitychange",function(){ if(!document.hidden) kick(); });
-  window.addEventListener("online", kick); window.addEventListener("pageshow", kick); window.addEventListener("focus", kick);
-  go();
-}
-function pub(topic,obj,retain){ if(!cli||!connected) return; try{ cli.publish(topic, JSON.stringify(obj), {qos:0, retain:!!retain}); }catch(e){} }
-
-/* ============================================================== Einstieg */
-var MYID = store("hk-id");
-if(!MYID){ MYID="p"+Math.random().toString(36).slice(2,10); store("hk-id",MYID); }
-function mkRoom(){ var a="ABCDEFGHJKLMNPQRSTUVWXYZ23456789", s=""; for(var i=0;i<4;i++) s+=a.charAt(Math.floor(Math.random()*a.length)); return s; }
-function baseUrl(){ return location.origin + location.pathname; }
-function roomUrl(r){ return baseUrl() + "#" + r; }
-
-function boot(){
-  var hash=(location.hash||"").replace(/^#/,"").toUpperCase().replace(/[^A-Z0-9]/g,"");
-  var savedHost=store("hk-host");
-  if(hash){ ROOM=hash; IS_HOST=false; startPlayer(); return; }
-  if(savedHost){ ROOM=savedHost; IS_HOST=true; startHost(); return; }
-  landing();
-}
-function landing(){
-  h('<div class="land">'+
-    '<div style="display:flex;align-items:center;gap:11px">'+crestSVG+'<b style="font-weight:800">Das Gewissens-Duell</b></div>'+
-    '<div class="landfigs"><span>'+figSVG(0,"2,5,0,0,4",0,"dn5")+'</span><span>'+figSVG(3,"2,5,1,0,3",1,"dn3")+'</span><span>'+figSVG(9,"1,3,2,0,0",0,"dn1")+'</span><span>'+figSVG(10,"0,4,3,0,1",1,"dn2")+'</span></div>'+
-    '<h1><span style="color:var(--herz)">Herz</span> oder <span style="color:var(--kopf)">Kopf</span>?</h1>'+
-    '<div style="display:flex;flex-direction:column;gap:12px">'+
-      '<span class="eyebrow">Code von der Leinwand eingeben</span>'+
-      '<input class="field codein" id="code" maxlength="4" placeholder="CODE" autocomplete="off" autocapitalize="characters" spellcheck="false">'+
-      '<button class="btn go" id="joinb" style="padding:22px;font-size:21px">Beitreten</button>'+
+/* 1 — Kaltstart: Gedankenspiel */
+slide({spk:"Luis", sec:"Gedankenspiel 1", min:"0:40",
+  html:
+  '<div class="body" style="gap:60px;align-items:center">'+
+    '<div class="door">'+
+      '<svg viewBox="0 0 360 560" width="360" height="560" aria-hidden="true">'+
+        '<rect x="20" y="10" width="320" height="530" rx="8" fill="#3B2E28"/>'+
+        '<rect x="40" y="30" width="280" height="500" rx="4" fill="#7A4E32"/>'+
+        '<rect x="66" y="60" width="228" height="170" rx="6" fill="none" stroke="#5E3A24" stroke-width="8"/>'+
+        '<rect x="66" y="262" width="228" height="230" rx="6" fill="none" stroke="#5E3A24" stroke-width="8"/>'+
+        '<circle cx="280" cy="300" r="15" fill="#D8B25F"/><circle cx="276" cy="296" r="5" fill="#F4DFA6"/>'+
+        '<rect class="lightsl" x="40" y="528" width="280" height="10" fill="#FFD66B"/>'+
+        '<path class="lightsl" d="M40 538 L0 560 L360 560 L320 538Z" fill="#FFD66B" opacity=".35"/>'+
+      '</svg>'+
+      '<span class="knock" style="left:-40px;top:120px">Klopf!</span>'+
+      '<span class="knock" style="right:-50px;top:250px;animation-delay:.3s">Klopf!</span>'+
     '</div>'+
-    '<p class="p" style="font-size:15px">Vier Zeichen, groß geschrieben. Keine Null und kein O.</p>'+
-    '<div style="margin-top:auto;padding-top:26px;border-top:1.5px solid var(--line);text-align:center">'+
-      '<button id="lead" style="font-size:13.5px;color:var(--ink3);text-decoration:underline;padding:8px">Du leitest das Quiz? Hier starten</button></div>'+
-  '</div>');
-  var inp=byId("code");
-  if(inp){
-    inp.oninput=function(){ this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,""); if(this.value.length===4) tryJoin(); };
-    inp.onkeydown=function(e){ if(e.key==="Enter") tryJoin(); };
-    setTimeout(function(){ try{ inp.focus(); }catch(e){} }, 200);
-  }
-  function tryJoin(){
-    var v=(byId("code").value||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
-    if(v.length<4){ byId("code").focus(); return; }
-    location.hash="#"+v; location.reload();
-  }
-  on("joinb", tryJoin);
-  on("lead",function(){
-    if(!confirm("Du leitest das Quiz und zeigst es auf dem Beamer?\n\nWenn du nur mitspielen willst: Abbrechen und den Code eingeben.")) return;
-    ROOM=mkRoom(); IS_HOST=true; store("hk-host",ROOM); startHost();
+    '<div style="flex:1;display:flex;flex-direction:column;gap:22px">'+
+      '<span class="kick">Stellt euch vor …</span>'+
+      '<h1 class="h1">Deine beste Freundin versteckt sich bei dir.</h1>'+
+      '<p class="lead">Es klopft. Draußen steht jemand, der ihr etwas antun will, und fragt: <b style="color:var(--ink)">„Ist sie bei dir?“</b></p>'+
+      '<div data-step="1">'+tally("door","😶 Ich lüge:<br>„Nein.“","🙋 Ich sage<br>die Wahrheit")+'</div>'+
+      '<div data-step="2" class="card" style="display:flex;gap:20px;align-items:center;padding:18px 24px">'+
+        '<span class="chip g" style="flex:none">Plot-Twist</span>'+
+        '<p class="txt" style="color:var(--ink)">Der Philosoph <b>Immanuel Kant</b> sagt: <b>Du darfst nicht lügen.</b> Nie. Auch hier nicht. Wer hat recht? Genau darum geht es heute.</p>'+
+      '</div>'+
+    '</div>'+
+  '</div>',
+  notes:{say:"Kurzes Gedankenspiel: Eure beste Freundin versteckt sich bei euch. Es klopft. Draußen steht jemand, der ihr etwas antun will: Ist sie bei dir? Hände hoch: Wer lügt? … Wer sagt die Wahrheit? … Plot-Twist: Kant sagt, man darf nie lügen. Auch hier nicht. Wer hat recht? Das klären wir jetzt.",
+    act:["C drücken → Uhr startet","Leertaste → Abstimmung erscheint, Hände zählen, mit Taste 1 / 2 (oder Klick) eintragen","Leertaste → Kant-Twist","Keine Auflösung verraten, nur neugierig machen"]}});
+
+/* 2 — Titel */
+slide({spk:"Luis", sec:"Ethik · Ethische Fragen des Zusammenlebens", min:"0:15",
+  html:
+  '<div class="body" style="align-items:center;gap:60px">'+
+    '<div style="flex:1;display:flex;flex-direction:column;gap:26px">'+
+      '<span class="kick">Gesinnungsethik &amp; Verantwortungsethik</span>'+
+      '<h1 class="display"><span class="herz">Herz</span><br>oder <span class="kopf">Kopf</span>?</h1>'+
+      '<p class="lead" style="max-width:30ch">Zählt, was du <b style="color:var(--herz)">willst</b> — oder was du <b style="color:var(--kopf)">bewirkst</b>?</p>'+
+      '<div style="display:flex;gap:12px;align-items:center;margin-top:8px">'+
+        
+        '<span class="chip" style="font-size:16px">Luis &amp; Ciepi</span>'+
+        '<span class="chip">3 Gedankenspiele · Live-Quiz</span>'+
+      '</div>'+
+    '</div>'+
+    '<div style="position:relative;width:520px;height:520px;flex:none">'+
+      '<div class="bob" style="position:absolute;left:0;top:30px">'+heartIco(300)+'</div>'+
+      '<div class="bob" style="position:absolute;right:0;bottom:10px;animation-delay:-1.7s">'+headIco(300)+'</div>'+
+    '</div>'+
+  '</div>',
+  notes:{say:"Unser Thema: Gesinnungs- und Verantwortungsethik. Kurz: Herz oder Kopf? Zählt, was du willst, oder was du bewirkst? Ciepi, die Grundidee.",
+    act:["Kurz halten","Übergabe an Ciepi"]}});
+
+/* 3 — Grundidee */
+slide({spk:"Ciepi", sec:"1 · Die Grundidee", min:"0:35",
+  html:
+  '<div class="body" style="flex-direction:column;gap:26px">'+
+    '<h2 class="h2">Zwei Fragen, bevor du handelst</h2>'+
+    '<div style="display:flex;align-items:center;gap:0">'+
+      '<div class="card h" style="flex:1;display:flex;gap:22px;align-items:center;padding:28px 34px">'+heartIco(120)+
+        '<div><span class="kick herz">Gesinnungsethik</span><p class="h2" style="font-size:40px;margin-top:6px">„Ist meine <u>Absicht</u> moralisch gut?“</p></div></div>'+
+      '<div class="vs" style="margin:0 -30px;z-index:2">vs</div>'+
+      '<div class="card k" style="flex:1;display:flex;gap:22px;align-items:center;padding:28px 34px 28px 50px">'+headIco(120)+
+        '<div><span class="kick kopf">Verantwortungsethik</span><p class="h2" style="font-size:40px;margin-top:6px">„Sind die <u>Folgen</u> vertretbar?“</p></div></div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:26px">'+
+      '<p class="lead" data-step="1" style="font-size:29px">Eine Handlung ist <b>richtig, wenn sie aus guter Gesinnung</b> kommt: nach Werten wie Ehrlichkeit, Gerechtigkeit, Mitgefühl.</p>'+
+      '<p class="lead" data-step="1" style="font-size:29px">Eine Handlung ist <b>richtig, wenn ihre Folgen gut</b> sind. Sie wägt ab, kalkuliert Nebenwirkungen und künftige Entwicklungen.</p>'+
+    '</div>'+
+    '<div data-step="2" class="card" style="display:flex;gap:26px;align-items:center;padding:20px 28px;margin-top:auto">'+
+      '<span style="font-size:60px">💶</span>'+
+      '<div style="flex:1"><span class="kick">Beispiel aus dem Buch · Die Spende</span>'+
+      '<p class="txt" style="color:var(--ink);margin-top:4px">Jemand spendet an eine Hilfsorganisation. <b class="herz">Herz:</b> gut, weil die Absicht aufrichtig ist. <b class="kopf">Kopf:</b> gut erst, wenn das Geld auch wirklich ankommt und hilft.</p></div>'+
+    '</div>'+
+  '</div>',
+  notes:{say:"Vor jeder Handlung kann man zwei Fragen stellen. Gesinnungsethik: Ist meine Absicht gut? Verantwortungsethik: Sind die Folgen vertretbar? Beispiel Spende: Fürs Herz zählt die gute Absicht. Für den Kopf erst, ob das Geld wirklich ankommt.",
+    act:["Leertaste → beide Definitionen","Leertaste → Spenden-Beispiel","Auf die zwei Symbole zeigen: Herz = Absicht, Zahnrad mit Wellen = Folgen, die sich ausbreiten"]}});
+
+/* 4 — Gedankenspiel Klimakleber */
+slide({spk:"Ciepi", sec:"Gedankenspiel 2 · aus dem Buch", min:"0:40",
+  html:
+  '<div class="body" style="flex-direction:column;gap:24px">'+
+    '<div style="display:flex;align-items:baseline;gap:20px"><h2 class="h2">Nach der dritten Stunde …</h2>'+
+      '<span class="chip g">Im Buch heißt einer der beiden übrigens Luis 👀</span></div>'+
+    '<div class="panel3">'+
+      '<div class="comic"><div class="who"><span class="av" style="background:#8A5CF6">M</span>Marc</div>'+
+        '<div class="bubble">„Wir gehen zur Demo und kleben uns auf die Straße — für unsere Zukunft!“</div></div>'+
+      '<div class="comic"><div class="who"><span class="av" style="background:#F2A33A">L</span>Lea</div>'+
+        '<div class="bubble">„Ich bin für Klimaschutz. Aber was ist, wenn ein <b>Rettungswagen</b> durch muss? Ist es das wert?“</div></div>'+
+      '<div class="comic"><div class="who"><span class="av" style="background:#8A5CF6">M</span>Marc</div>'+
+        '<div class="bubble">„Schon klar. Aber wir handeln nach unserer <b>Überzeugung</b>.“</div></div>'+
+    '</div>'+
+    '<div data-step="1" style="margin-top:8px"><p class="h3" style="margin-bottom:14px">Wem gebt ihr recht? Hände hoch!</p>'+
+      tally("kleber","Marc<br><small style=\'font-weight:600;font-size:17px;color:var(--ink3)\'>„Überzeugung zählt“</small>","Lea<br><small style=\'font-weight:600;font-size:17px;color:var(--ink3)\'>„Folgen bedenken“</small>")+'</div>'+
+    '<div data-step="2" style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:auto">'+
+      '<div class="kitem h"><b>❤</b><span>Marc denkt <b>gesinnungsethisch</b>: Die gute Absicht rechtfertigt die Aktion.</span></div>'+
+      '<div class="kitem k"><b>⚙</b><span>Lea denkt <b>verantwortungsethisch</b>: Auch eine gute Aktion hat Folgen für andere.</span></div>'+
+    '</div>'+
+  '</div>',
+  notes:{say:"Eine Szene aus dem Buch, und einer heißt sogar Luis. Marc will sich für das Klima auf die Straße kleben. Lea fragt: Und wenn ein Rettungswagen durch muss? Marc: Wir handeln nach unserer Überzeugung. Wer gibt Marc recht, wer Lea? … Marc denkt gesinnungsethisch, Lea verantwortungsethisch.",
+    act:["Luis kurz anschauen beim Spoiler 😄","Leertaste → Abstimmung, Hände zählen","Leertaste → Auflösung","Übergabe an Luis"]}});
+
+/* 5 — Die Unterschiede */
+slide({spk:"Luis", sec:"2 · Die Unterscheidung", min:"0:35",
+  html:
+  '<div class="body" style="flex-direction:column;gap:18px">'+
+    '<h2 class="h2">Der direkte Vergleich</h2>'+
+    '<div class="cmp">'+
+      '<span></span>'+
+      '<div class="hd h">'+heartIco(56,"rgba(255,255,255,.22)")+'<b>Gesinnungsethik</b></div>'+
+      '<div class="hd k">'+headIco(56,"rgba(255,255,255,.22)")+'<b>Verantwortungsethik</b></div>'+
+      '<span class="rl" data-step="1">Leitfrage</span><div class="c h" data-step="1">Ist meine Absicht gut?</div><div class="c k" data-step="1">Sind die Folgen vertretbar?</div>'+
+      '<span class="rl" data-step="2">Blick</span><div class="c h" data-step="2">nach innen: Motiv, Gewissen, Werte</div><div class="c k" data-step="2">nach außen: Wirkung, Nebenfolgen, Zukunft</div>'+
+      '<span class="rl" data-step="3">Maßstab</span><div class="c h" data-step="3">feste Prinzipien, gelten immer</div><div class="c k" data-step="3">Abwägung im Einzelfall</div>'+
+      '<span class="rl" data-step="4">Lügen?</span><div class="c h" data-step="4">nein, Lügen ist falsch</div><div class="c k" data-step="4">ja, wenn es ein Leben rettet</div>'+
+      '<span class="rl" data-step="5">Motto</span><div class="c h" data-step="5" style="font-family:Fraunces,serif;font-style:italic;font-size:26px">„Hauptsache, ich meine es gut.“</div><div class="c k" data-step="5" style="font-family:Fraunces,serif;font-style:italic;font-size:26px">„Hauptsache, es geht gut aus.“</div>'+
+    '</div>'+
+    '<p class="txt" data-step="6" style="margin-top:auto"><b style="color:var(--ink)">Wichtig:</b> Verantwortungsethik heißt nicht „egal, was ich will“. Sie nimmt die Folgen nur <em class="hl">noch wichtiger</em> als die Absicht.</p>'+
+  '</div>',
+  notes:{say:"Der direkte Vergleich: Absicht gegen Folgen. Blick nach innen gegen Blick nach außen. Feste Prinzipien gegen Abwägung. Lügen ist für die eine Seite immer falsch, für die andere okay, wenn es ein Leben rettet. Motto: Hauptsache gut gemeint gegen Hauptsache gut ausgegangen.",
+    act:["Sechs Mal Leertaste, Zeile für Zeile","Bei „Lügen?“ auf Gedankenspiel 1 zurückverweisen"]}});
+
+/* 6 — Max Weber */
+slide({spk:"Luis", sec:"3 · Wer hat's erfunden?", min:"0:30",
+  html:
+  '<div class="body" style="gap:56px;align-items:center">'+
+    '<div style="display:flex;flex-direction:column;align-items:center;gap:14px;flex:none">'+
+      '<div class="medal">'+bust("weber")+'</div>'+
+      '<b style="font-size:32px">Max Weber</b><span class="mono" style="color:var(--ink3);font-size:18px">1864 – 1920 · Soziologe</span>'+
+      '<span class="chip g">1919 · „Politik als Beruf“</span>'+
+    '</div>'+
+    '<div style="flex:1;display:flex;flex-direction:column;gap:24px">'+
+      '<h2 class="h2">Ein Vortrag, zwei Begriffe</h2>'+
+      '<p class="lead" style="font-size:26px">1919, kurz nach dem Ersten Weltkrieg, spricht Weber in München vor Studierenden über „Politik als Beruf“.</p>'+
+      '<div class="card" style="padding:26px 32px"><p class="quote">… alles ethisch orientierte Handeln [kann] unter zwei voneinander grundverschiedenen, unaustragbar gegensätzlichen Maximen stehen: … ‚gesinnungsethisch‘ oder ‚verantwortungsethisch‘.“</p>'+
+        '<p class="src">MAX WEBER, POLITIK ALS BERUF, 1919</p></div>'+
+      '<div data-step="1" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">'+
+        '<div class="kitem h"><b>❤</b><span>Gesinnungsethiker tut das Richtige und <b>überlässt den Erfolg Gott</b>. Für Folgen fühlt er sich nicht zuständig.</span></div>'+
+        '<div class="kitem k"><b>⚙</b><span>Verantwortungsethiker <b>steht für die voraussehbaren Folgen</b> seines Handelns ein.</span></div>'+
+      '</div>'+
+      '<p class="txt" data-step="2"><b style="color:var(--ink)">Webers Urteil:</b> Wer Politik macht, muss <b class="kopf">verantwortungsethisch</b> handeln. Nur mit gutem Gewissen zu regieren, findet er gefährlich.</p>'+
+    '</div>'+
+  '</div>',
+  notes:{say:"Die Begriffe stammen von Max Weber, 1919, Vortrag „Politik als Beruf“. Der Gesinnungsethiker tut das Richtige und überlässt den Erfolg Gott. Der Verantwortungsethiker steht für die Folgen ein. Weber sagt: Politiker müssen verantwortungsethisch handeln.",
+    act:["Zitat langsam vorlesen","Leertaste → Weber-Gegenüberstellung","Leertaste → Webers Urteil","Übergabe an Ciepi"]}});
+
+/* 7 — Ahnengalerie */
+slide({spk:"Ciepi", sec:"3 · Philosophen & Vertreter", min:"0:40",
+  html:
+  '<div class="body" style="flex-direction:column">'+
+    '<div style="display:flex;align-items:baseline;gap:20px"><h2 class="h2">Die Ahnengalerie</h2>'+
+      '<span class="chip h">❤ Wurzeln der Gesinnungsethik</span><span class="chip k">⚙ Wurzeln der Verantwortungsethik</span></div>'+
+    '<div class="tline" style="margin-top:20px">'+
+      '<div class="axis"></div><div class="gap">~2000 J.</div>'+
+      '<div class="ph up dot" data-step="1" style="left:0;--pc:var(--herz)"><div class="md">'+bust("plato")+'</div>'+
+        '<span class="nm">Platon &amp; Aristoteles</span><span class="yr">428 – 322 v. Chr.</span></div>'+
+      '<div class="ph dn" data-step="1" style="left:0;--pc:var(--herz)"><span class="chip h tg">Tugendethik</span>'+
+        '<span class="ds">Gut handelt, wer <b>gute Haltungen</b> (Tugenden) hat: ein ausgewogenes, glückliches Leben.</span></div>'+
+      '<div class="ph up dot" data-step="2" style="left:30%;--pc:var(--herz)"><div class="md">'+bust("kant")+'</div>'+
+        '<span class="nm">Immanuel Kant</span><span class="yr">1724 – 1804</span></div>'+
+      '<div class="ph dn" data-step="2" style="left:30%;--pc:var(--herz)"><span class="chip h tg">Deontologie · Pflichtethik</span>'+
+        '<span class="ds">Das <b>innere Gesetz der Vernunft</b> gilt immer, egal was folgt. Darum: nie lügen.</span></div>'+
+      '<div class="ph up dot" data-step="3" style="left:49%;--pc:var(--kopf)"><div class="md">'+bust("mill")+'</div>'+
+        '<span class="nm">Bentham &amp; Mill</span><span class="yr">1748 – 1873</span></div>'+
+      '<div class="ph dn" data-step="3" style="left:49%;--pc:var(--kopf)"><span class="chip k tg">Utilitarismus</span>'+
+        '<span class="ds">Richtig ist, was das <b>größte Glück der größten Zahl</b> bringt. Nur Folgen zählen.</span></div>'+
+      '<div class="ph up dot" data-step="4" style="left:66%;--pc:var(--gold)"><div class="md">'+bust("weber")+'</div>'+
+        '<span class="nm">Max Weber</span><span class="yr">1919</span></div>'+
+      '<div class="ph dn" data-step="4" style="left:66%;--pc:var(--gold)"><span class="chip g tg">gibt beiden den Namen</span>'+
+        '<span class="ds">Prägt das Gegensatzpaar.</span></div>'+
+      '<div class="ph up dot" data-step="5" style="left:83%;--pc:var(--kopf)"><div class="md">'+bust("jonas")+'</div>'+
+        '<span class="nm">Hans Jonas</span><span class="yr">1979</span></div>'+
+      '<div class="ph dn" data-step="5" style="left:83%;--pc:var(--kopf)"><span class="chip k tg">Prinzip Verantwortung</span>'+
+        '<span class="ds">Ethik für das <b>Technik-Zeitalter</b>. Gleich mehr.</span></div>'+
+    '</div>'+
+  '</div>',
+  notes:{say:"Die Wurzeln: Platon und Aristoteles mit der Tugendethik, Kant mit der Pflichtethik, nie lügen. Das ist die Herz-Seite. Auf der Kopf-Seite: Bentham und Mill, größtes Glück für die meisten. 1919 gibt Weber beiden den Namen, 1979 bringt Hans Jonas die Verantwortung ins Technik-Zeitalter.",
+    act:["Fünf Mal Leertaste, Person für Person","Farben erklären: rot = Herz, blau = Kopf"]}});
+
+/* 8 — Hans Jonas + Nah/Fern */
+slide({spk:"Ciepi", sec:"3 · Hans Jonas & die Fernethik", min:"0:35",
+  html:
+  '<div class="body" style="gap:50px;align-items:center">'+
+    '<div style="flex:1;display:flex;flex-direction:column;gap:22px">'+
+      '<div style="display:flex;gap:20px;align-items:center"><div class="medal" style="width:120px;height:120px;border-width:5px">'+bust("jonas")+'</div>'+
+        '<div><b style="font-size:34px">Hans Jonas</b><div class="mono" style="color:var(--ink3);font-size:17px;margin-top:4px">„Das Prinzip Verantwortung“, 1979</div></div></div>'+
+      '<p class="txt">Moderne Technik gibt uns <b>Macht über die Natur und die Zukunft</b>. Deshalb braucht es einen neuen kategorischen Imperativ:</p>'+
+      '<div class="card k" style="padding:22px 28px"><p class="quote" style="font-size:31px">Handle so, dass die Wirkungen deiner Handlung verträglich sind mit der Permanenz echten menschlichen Lebens auf Erden.“</p><p class="src">HANS JONAS, 1979</p></div>'+
+      '<div data-step="5" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'+
+        '<div class="kitem k" style="background:#EEF2FC"><b>👪</b><span><b>Nahethik:</b> Verantwortung für Menschen um mich herum.</span></div>'+
+        '<div class="kitem k"><b>🌍</b><span><b>Fernethik:</b> für Fremde, die Umwelt und <b>künftige Generationen</b>.</span></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="rings">'+
+      '<div class="ring on" style="width:140px;height:140px;background:var(--kopf);z-index:5;align-items:center;color:#fff;font-weight:800;font-size:26px">ICH</div>'+
+      '<div class="ring" data-ring="1" style="width:270px;height:270px;background:#C9D6F6;z-index:4"><span>👪 Familie &amp; Freunde</span></div>'+
+      '<div class="ring" data-ring="2" style="width:400px;height:400px;background:#DCE4F9;z-index:3"><span>🏙 Nachbarschaft &amp; Land</span></div>'+
+      '<div class="ring" data-ring="3" style="width:520px;height:520px;background:#E9EEFB;z-index:2"><span>🌍 Menschen weltweit &amp; Natur</span></div>'+
+      '<div class="ring" data-ring="4" style="width:636px;height:636px;background:#F3F6FD;border:3px dashed var(--kopf);z-index:1"><span>👶 Generationen 2100+</span></div>'+
+    '</div>'+
+  '</div>',
+  onStep:function(st,el){ var r=el.querySelectorAll("[data-ring]"); for(var i=0;i<r.length;i++) r[i].classList.toggle("on", +r[i].getAttribute("data-ring")<=st); },
+  steps:5,
+  notes:{say:"Jonas sagt: Technik gibt uns riesige Macht über die Zukunft. Darum: Handle so, dass auch künftig menschliches Leben auf der Erde möglich bleibt. Die Kreise zeigen: Unser Handeln wirkt von Familie bis zu Menschen, die noch nicht geboren sind. Innen Nahethik, außen Fernethik.",
+    act:["Leertaste 4× → Kreise wachsen nach außen","Leertaste → Nah- und Fernethik","Übergabe an Luis"]}});
+
+/* 9 — Schnellrunde */
+function fcard(n, q, cls, v, why){
+  return '<div class="flip" data-flip="'+n+'" style="height:300px"><div class="in">'+
+    '<div class="fa"><span class="n">FALL '+n+'</span><p class="q">'+q+'</p>'+
+      '<div class="ask"><span class="chip h">❤ Herz?</span><span class="chip k">⚙ Kopf?</span></div></div>'+
+    '<div class="fb '+cls+'"><span class="n" style="color:rgba(255,255,255,.7)">FALL '+n+'</span><span class="v">'+v+'</span><p>'+why+'</p><p style="margin-top:auto;font-size:17px;opacity:.78;font-style:italic">'+q+'</p></div>'+
+  '</div></div>';
+}
+slide({spk:"Luis", sec:"4 · Anwendung · Schnellrunde", min:"0:45",
+  html:
+  '<div class="body" style="flex-direction:column;gap:22px">'+
+    '<div style="display:flex;align-items:baseline;gap:22px"><h2 class="h2">Herz oder Kopf? Ruft rein!</h2>'+
+      '<span class="kick">Leertaste dreht die nächste Karte um</span></div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:22px">'+
+      fcard(1,"Eine Schülerin sagt ihrem Lehrer die Wahrheit über die vergessene Hausaufgabe, obwohl sie dafür eine schlechte Note bekommt.","h","❤ Herz","Ehrlichkeit als Prinzip, die schlechte Folge für sie selbst nimmt sie in Kauf.")+
+      fcard(2,"Bevor du spendest, prüfst du, ob die Organisation das Geld wirklich zu den Bedürftigen bringt.","k","⚙ Kopf","Du achtest auf die Wirkung, nicht nur auf deine gute Absicht.")+
+      fcard(3,"Eine Ärztin gibt aus Mitgefühl ein kaum getestetes Medikament. Es schadet mehr, als es nützt.","h","❤ Herz","Starke Absicht, aber die Folgen wurden nicht bedacht. Beispiel aus dem Buch für die Kritik.")+
+      fcard(4,"Eine Regierung beschließt strenge Klimagesetze, obwohl die Wirtschaft kurzfristig verliert.","k","⚙ Kopf","Abwägung: kurzfristige Kosten gegen langfristigen Schutz künftiger Generationen (Fernethik).")+
+    '</div>'+
+  '</div>',
+  steps:4,
+  onStep:function(st,el){ var f=el.querySelectorAll("[data-flip]"); for(var i=0;i<f.length;i++) f[i].classList.toggle("open", +f[i].getAttribute("data-flip")<=st); },
+  notes:{say:"Ihr seid dran, ruft rein: Herz oder Kopf? Fall 1, Ehrlichkeit trotz schlechter Note: Herz. Fall 2, prüfen, ob die Spende ankommt: Kopf. Fall 3, Ärztin gibt aus Mitgefühl ein ungetestetes Medikament: Herz. Fall 4, Klimagesetze trotz Kosten: Kopf.",
+    act:["Fall vorlesen → Klasse rufen lassen → Leertaste dreht um","Karten lassen sich auch anklicken","Übergabe an Ciepi"]}});
+
+/* 10 — Anwendungsbereiche */
+slide({spk:"Ciepi", sec:"4 · Wo begegnet uns das?", min:"0:25",
+  html:
+  '<div class="body" style="flex-direction:column;gap:24px">'+
+    '<h2 class="h2">Vier Bereiche, in denen beide Fragen zählen</h2>'+
+    '<div class="fields">'+
+      '<div class="field" data-step="1"><span class="fi">🏛</span><h3>Politik</h3><p>Gesetze wirken auf Millionen. Weber verlangt: für Folgen geradestehen.</p>'+
+        '<div class="duo"><div class="h">❤ Ist das Gesetz gerecht?</div><div class="k">⚙ Wen trifft es, was kostet es?</div></div></div>'+
+      '<div class="field" data-step="2"><span class="fi">🩺</span><h3>Medizin</h3><p>Mitgefühl allein reicht nicht, Behandlungen müssen sicher sein.</p>'+
+        '<div class="duo"><div class="h">❤ Will ich helfen?</div><div class="k">⚙ Ist es getestet und sicher?</div></div></div>'+
+      '<div class="field" data-step="3"><span class="fi">🤖</span><h3>Technik</h3><p>Künstliche Intelligenz und Gentechnik: Folgen sind groß und oft unbekannt.</p>'+
+        '<div class="duo"><div class="h">❤ Achten wir die Würde?</div><div class="k">⚙ Was passiert in 20 Jahren?</div></div></div>'+
+      '<div class="field" data-step="4"><span class="fi">🌊</span><h3>Umwelt</h3><p>Weniger Plastik: nicht nur Müll hier, sondern Meere und künftige Generationen.</p>'+
+        '<div class="duo"><div class="h">❤ Will ich die Natur schützen?</div><div class="k">⚙ Wirkt mein Handeln wirklich?</div></div></div>'+
+    '</div>'+
+    '<p class="lead" data-step="5" style="margin-top:auto">Im echten Leben stellt man <em class="hl">beide Fragen</em>, nur mit unterschiedlichem Gewicht.</p>'+
+  '</div>',
+  notes:{say:"Wo begegnet uns das? In Politik, Medizin, Technik und Umwelt. Überall stellt man beide Fragen, nur unterschiedlich stark.",
+    act:["Vier Mal Leertaste, ein Bereich pro Klick","Leertaste → Merksatz","Übergabe an Luis"]}});
+
+/* 11 — Kritik (Waage) */
+slide({spk:"Luis", spk2:"Ciepi", sec:"5 · Kritik", min:"0:40",
+  html:
+  '<div class="body" style="gap:34px;align-items:center">'+
+    '<div style="flex:1;display:flex;flex-direction:column;gap:12px">'+
+      '<span class="kick herz">Kritik an der Gesinnungsethik · Luis</span>'+
+      '<div class="klist">'+
+        '<div class="kitem h" data-step="1"><b>①</b><span><b>Folgen werden vernachlässigt.</b> Gut gemeint ist nicht gut gemacht (siehe Ärztin).</span></div>'+
+        '<div class="kitem h" data-step="2"><b>②</b><span><b>Kann stur machen:</b> „Ich hab ja recht“, egal wer darunter leidet.</span></div>'+
+        '<div class="kitem h" data-step="3"><b>③</b><span>Laut Weber <b>ungeeignet für die Politik</b>.</span></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="scale" id="scale">'+
+      '<div class="foot"></div><div class="post"></div><div class="pivot"></div>'+
+      '<div class="beam"><div class="bar"></div>'+
+        '<div class="pan l"><div class="str"></div><div class="dish"></div><div class="w" id="wl"></div></div>'+
+        '<div class="pan r"><div class="str"></div><div class="dish"></div><div class="w" id="wr"></div></div>'+
+      '</div>'+
+      '<div data-step="7" class="pop" style="position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);white-space:nowrap">'+
+        '<span class="chip g" style="font-size:22px;padding:10px 22px">⚖ Beide haben blinde Flecken</span></div>'+
+    '</div>'+
+    '<div style="flex:1;display:flex;flex-direction:column;gap:12px">'+
+      '<span class="kick kopf">Kritik an der Verantwortungsethik · Ciepi</span>'+
+      '<div class="klist">'+
+        '<div class="kitem k" data-step="4"><b>①</b><span><b>Folgen sind oft nicht vorhersehbar.</b> Niemand kennt die Zukunft.</span></div>'+
+        '<div class="kitem k" data-step="5"><b>②</b><span><b>Heiligt der Zweck die Mittel?</b> Werte werden verhandelbar.</span></div>'+
+        '<div class="kitem k" data-step="6"><b>③</b><span><b>Wer entscheidet</b>, welche Folgen zählen und wer draufzahlt?</span></div>'+
+      '</div>'+
+    '</div>'+
+  '</div>',
+  steps:7,
+  onStep:function(st,el){
+    var l=Math.min(st,3), r=Math.max(0,Math.min(st-3,3));
+    var wl=el.querySelector("#wl"), wr=el.querySelector("#wr");
+    wl.innerHTML=new Array(l*2+1).join("<i></i>"); wr.innerHTML=new Array(r*2+1).join("<i></i>");
+    el.querySelector(".beam").style.setProperty("--tilt", ((r-l)*5)+"deg");
+  },
+  notes:{say:"LUIS: Kritik an der Gesinnungsethik: Folgen werden vernachlässigt, sie kann stur machen, und für Politik ist sie laut Weber ungeeignet. — CIEPI: Kritik an der Verantwortungsethik: Folgen sind oft nicht vorhersehbar, der Zweck könnte die Mittel heiligen, und wer entscheidet, welche Folgen zählen? Beide haben blinde Flecken.",
+    act:["Luis: 3× Leertaste, Waage kippt nach links","Ciepi übernimmt: 3× Leertaste, Waage gleicht aus","Leertaste → „Beide haben blinde Flecken“"]}});
+
+/* 12 — Gedankenspiel 3: Ethikkomitee */
+slide({spk:"Ciepi", sec:"Gedankenspiel 3 · Herausforderungen heute", min:"0:40",
+  html:
+  '<div class="body" style="flex-direction:column;gap:20px">'+
+    '<div style="display:flex;gap:26px;align-items:center">'+
+      '<span style="font-size:84px">🏥</span>'+
+      '<div><span class="kick">Ihr seid jetzt das Ethikkomitee eines Krankenhauses</span>'+
+      '<h2 class="h2" style="margin-top:6px">Soll eine KI bei Diagnosen helfen?</h2></div>'+
+    '</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">'+
+      '<div class="card" style="padding:18px 24px"><span class="kick" style="color:#2E7D4F">Dafür</span>'+
+        '<p class="txt" style="margin-top:6px">✔ schneller und oft genauer als Ärztinnen und Ärzte<br>✔ kann Leben retten</p></div>'+
+      '<div class="card" style="padding:18px 24px"><span class="kick" style="color:var(--herz2)">Bedenken</span>'+
+        '<p class="txt" style="margin-top:6px">✖ Datenschutz der Patient:innen<br>✖ weniger Menschlichkeit · Jobs fallen weg</p></div>'+
+    '</div>'+
+    '<div data-step="1">'+tally("ki","✅ Einführen","⛔ Nicht einführen")+'</div>'+
+    '<div data-step="2" class="card" style="display:flex;gap:22px;align-items:center;padding:18px 26px;margin-top:auto">'+
+      '<span class="chip g" style="flex:none">Die Herausforderung</span>'+
+      '<p class="txt" style="color:var(--ink)">Die Folgen sind <b>unsicher</b>, die Verantwortung ist <b>verteilt</b> (wer haftet, wenn die KI irrt?) und viele Betroffene sind <b>weit weg oder noch nicht geboren</b>. Darum braucht es <b class="herz">Herz</b> <i>und</i> <b class="kopf">Kopf</b>.</p>'+
+    '</div>'+
+  '</div>',
+  notes:{say:"Ihr seid das Ethikkomitee eines Spitals: Soll eine KI bei Diagnosen helfen? Sie ist schneller und genauer, aber es gibt Datenschutz- und Job-Sorgen. Hände hoch: einführen oder nicht? … Genau das ist die Herausforderung: unsichere Folgen, verteilte Verantwortung, Betroffene weit weg.",
+    act:["Leertaste → Abstimmung, zählen, eintragen","Leertaste → Herausforderung","Übergabe an Luis"]}});
+
+/* 13 — Schluss */
+slide({spk:"Luis", spk2:"Ciepi", sec:"Fazit", min:"0:30",
+  html:
+  '<div class="body" style="flex-direction:column;gap:26px">'+
+    '<div class="eq">'+
+      '<div class="t">'+heartIco(150)+'<span class="herz">gute Absicht</span></div><span class="op">+</span>'+
+      '<div class="t">'+headIco(150)+'<span class="kopf">gute Folgen</span></div><span class="op">=</span>'+
+      '<div class="t"><div style="width:150px;height:150px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:80px;box-shadow:0 0 0 10px var(--golds)">⚖</div><span style="color:#8B6914">verantwortungsvoll handeln</span></div>'+
+    '</div>'+
+    '<div class="card" style="padding:22px 32px;text-align:center"><p class="quote" style="font-size:31px">Gesinnungsethik und Verantwortungsethik [sind] nicht absolute Gegensätze, sondern Ergänzungen, die zusammen erst den echten Menschen ausmachen …“</p><p class="src">MAX WEBER, POLITIK ALS BERUF, 1919</p></div>'+
+    '<div class="take" data-step="1">'+
+      '<div class="card"><b>1</b><p><b style="color:var(--ink)">Absicht allein</b> reicht nicht. Denk an die Folgen.</p></div>'+
+      '<div class="card"><b>2</b><p><b style="color:var(--ink)">Folgen allein</b> reichen nicht. Manche Werte sind nicht verhandelbar.</p></div>'+
+      '<div class="card"><b>3</b><p>Heute zählt die <b style="color:var(--ink)">Fernethik</b>: Welt und Zukunft mitdenken.</p></div>'+
+    '</div>'+
+    '<p class="lead" data-step="2" style="text-align:center">Und Luis aus dem Buch? Er geht mit zur Demo, aber <em class="hl">Leas Worte bleiben ihm im Kopf.</em></p>'+
+  '</div>',
+  notes:{say:"LUIS: Gute Absicht plus gute Folgen ergibt verantwortungsvolles Handeln. Sogar Weber sagt: Die beiden sind Ergänzungen. — CIEPI: Absicht allein reicht nicht, Folgen allein auch nicht, und heute müssen wir Welt und Zukunft mitdenken. Und jetzt: Handys raus!",
+    act:["Luis: Gleichung + Weber-Zitat","Leertaste → Ciepi: drei Merksätze","Leertaste → Schlusssatz","Quiz-Leitung im zweiten Tab schon offen haben!"]}});
+
+/* 14 — Quiz */
+slide({spk:"Luis", spk2:"Ciepi", sec:"Live-Quiz", min:"0:20", quiz:true,
+  html:
+  '<div class="confetti" id="conf"></div>'+
+  '<div class="body" style="gap:60px;align-items:center">'+
+    '<div class="qrwrap" id="qrbox"><canvas id="qrcv" width="380" height="380"></canvas></div>'+
+    '<div style="flex:1;display:flex;flex-direction:column;gap:24px">'+
+      '<span class="kick">Handys raus · Live-Quiz</span>'+
+      '<h1 class="h1">Das Gewissens-Duell</h1>'+
+      '<div class="url" id="qurl"></div>'+
+      '<div class="steps3">'+
+        '<div><b>1</b>QR-Code scannen oder Adresse eintippen</div>'+
+        '<div><b>2</b>Raumcode vom Quiz-Bildschirm eingeben</div>'+
+        '<div><b>3</b>Figur bauen und euer Team wählen:</div>'+
+      '</div>'+
+      '<div class="teams">'+
+        '<div class="team h"><span style="font-size:44px">❤</span><div>Team Herz<small>Gesinnungsethik</small></div></div>'+
+        '<div class="team k"><span style="font-size:44px">⚙</span><div>Team Kopf<small>Verantwortungsethik</small></div></div>'+
+      '</div>'+
+      '<div class="dancers"><span>🕺</span><span>💃</span><span>🧑‍🎓</span><span>🎉</span></div>'+
+    '</div>'+
+  '</div>',
+  notes:{say:"QR-Code scannen, Raumcode eingeben, Figur bauen, Team wählen: Herz oder Kopf. Los geht's!",
+    act:["Zum Quiz-Tab wechseln (Leitung läuft schon), dort steht der Raumcode","Warten, bis die meisten drin sind, dann „Quiz starten“"]}});
+
+/* ============================================================ MOTOR */
+var cur=0, step=0, maxStep=0, T={};
+var slot=document.getElementById("slot"), stage=document.getElementById("stage");
+var notesEl=document.getElementById("notes"), scriptEl=document.getElementById("script");
+
+function fit(){
+  var s=Math.min(window.innerWidth/1600, window.innerHeight/900);
+  stage.style.transform="scale("+s+")";
+}
+window.addEventListener("resize",fit); fit();
+
+function spkChip(o){
+  var a=SPK[o.spk], h='<div class="spk '+a.c+'"><i>'+a.i+'</i>'+o.spk;
+  if(o.spk2) h+=' <small>→ '+o.spk2+'</small>';
+  return h+'</div>';
+}
+function render(){
+  var o=SL[cur];
+  slot.innerHTML='<section class="slide"><div class="top"><span class="sec">'+o.sec+'</span>'+spkChip(o)+'</div>'+o.html+'</section>';
+  var el=slot.firstChild, st=el.querySelectorAll("[data-step]"), m=0;
+  for(var i=0;i<st.length;i++) m=Math.max(m,+st[i].getAttribute("data-step"));
+  maxStep=Math.max(m, o.steps||0);
+  wire(el); apply(); foot(); notes();
+  if(o.quiz) quizSlide(el);
+  try{ history.replaceState(null,"","#"+(cur+1)); }catch(e){}
+}
+function apply(){
+  var el=slot.firstChild; if(!el) return;
+  var st=el.querySelectorAll("[data-step]");
+  for(var i=0;i<st.length;i++) st[i].classList.toggle("on", +st[i].getAttribute("data-step")<=step);
+  if(SL[cur].onStep) SL[cur].onStep(step, el);
+}
+function next(){
+  startClock();
+  if(step<maxStep){ step++; apply(); }
+  else if(cur<SL.length-1){ cur++; step=0; render(); }
+}
+function prev(){
+  if(step>0){ step--; apply(); }
+  else if(cur>0){ cur--; render(); step=maxStep; apply(); }
+}
+function foot(){
+  document.getElementById("num").textContent=(cur+1)+" / "+SL.length;
+  var b=document.getElementById("bar"), h="";
+  SL.forEach(function(o,i){ h+='<i class="'+(o.spk==="Luis"?"l":"c")+(i<cur?" done":"")+(i===cur?" now":"")+'" title="'+o.spk+'"></i>'; });
+  b.innerHTML=h;
+}
+function notes(){
+  var o=SL[cur], n=SL[cur+1];
+  notesEl.innerHTML='<div class="nh"><b style="background:var(--'+SPK[o.spk].c+')">'+o.spk+(o.spk2?" + "+o.spk2:"")+'</b>'+
+    'Folie '+(cur+1)+' · ca. '+o.min+(n?' · danach: '+n.spk:'')+'</div>'+
+    '<div>'+o.notes.say+'</div><ul>'+o.notes.act.map(function(a){return "<li>"+a+"</li>";}).join("")+'</ul>';
+}
+function buildScript(){
+  var h='<button class="x" id="sx">Schließen (S)</button><div class="sw"><span class="kick">Sprechtext · Luis &amp; Ciepi</span>'+
+    '<h1>Herz oder Kopf?</h1><p class="txt" style="margin-bottom:20px">Mit Strg+P ausdrucken. Gesamtzeit ca. 8 Minuten.</p>';
+  SL.forEach(function(o,i){
+    h+='<div class="row"><div class="who" style="color:var(--'+SPK[o.spk].c+')">'+(i+1)+'. '+o.spk+(o.spk2?" + "+o.spk2:"")+
+      '<small>'+o.min+' min</small></div><div><div class="kick" style="margin-bottom:6px">'+o.sec+'</div>'+
+      '<div class="say">'+o.notes.say+'</div><div class="act">▸ '+o.notes.act.join(" · ")+'</div></div></div>';
+  });
+  scriptEl.innerHTML=h+'</div>';
+  document.getElementById("sx").onclick=function(){ scriptEl.classList.remove("show"); };
+}
+
+/* Abstimmungen: Zählerstand bleibt beim Hin- und Herblättern erhalten */
+function wire(el){
+  Array.prototype.forEach.call(el.querySelectorAll("[data-tally]"),function(t){
+    var id=t.getAttribute("data-tally"); if(!T[id]) T[id]={a:0,b:0};
+    t.querySelectorAll("[data-side]").forEach(function(b){
+      b.onclick=function(e){ if(e.target.hasAttribute("data-minus")) return; T[id][b.getAttribute("data-side")]++; paintT(t); };
+    });
+    t.querySelectorAll("[data-minus]").forEach(function(m){
+      m.onclick=function(e){ e.stopPropagation(); var s=m.getAttribute("data-minus"); T[id][s]=Math.max(0,T[id][s]-1); paintT(t); };
+    });
+    paintT(t);
+  });
+  Array.prototype.forEach.call(el.querySelectorAll("[data-flip]"),function(f){
+    f.onclick=function(){ f.classList.toggle("open"); };
   });
 }
-
-/* ================================================================ LEITUNG */
-function startHost(){
-  var G={ phase:"lobby", qi:0, endsAt:0, players:{}, order:[], answers:{}, evts:[], ekey:0, banned:{}, out:{}, gone:{} };
-  /* Versehentlich neu geladen? Spielstand kommt aus dem Browser-Speicher zurück —
-     alle bleiben mit ihren Punkten drin. */
-  try{ var saved=JSON.parse(store("hk-game-"+ROOM)||"null"); if(saved && saved.players) G=saved; G.evts=[]; }catch(e){}
-  var lastKey="", seenAns={}, lastScores={}, bumped={}, danceUntil={}, topShown=-1;
-  var jQueue=[], jBusy=false, dirty=true, mgrOpen=false, lastSec=-1;
-
-  onMsg=handle; onState=null;
-  onReconnect=function(){ dirty=true; publish(); };
-  showBadge("Verbinde …");
-  netConnect(function(){ hideBadge(); dirty=true; publish(); draw(true); });
-  setInterval(tick, 300);
-  setInterval(paintTimer, 110);
-
-  document.addEventListener("keydown", function(e){
-    if((e.target.tagName||"").toLowerCase()==="input") return;
-    var k=e.key;
-    if(k===" "||k==="ArrowRight"||k==="Enter"){ e.preventDefault(); advance(); }
-    else if(k==="s"||k==="S"){ if(G.phase==="reveal"){ G.phase="scores"; advance(); } }
-    else if(k==="f"||k==="F"){ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(function(){}); }
-    else if(k==="m"||k==="M"){ muted=!muted; store("hk-mute",muted?"1":"0"); if(!muted) sndBlip(); lastKey=""; draw(true); }
-    else if(k==="d"||k==="D"){ G.order.forEach(function(id){ var d=danceOf((G.players[id]||{}).ac)||1; danceUntil[id]={t:Date.now()+5000,d:d}; }); applyDance(); }
-    else if(k==="k"||k==="K"){ mgrOpen=!mgrOpen; renderMgr(); }
-    else if(k==="r"||k==="R"){
-      if(confirm("Quiz neu starten? Alle Spieler und Punkte werden gelöscht.")){
-        G.players={}; G.order=[]; G.answers={}; G.phase="lobby"; G.qi=0; G.out={}; seenAns={}; lastScores={}; dirty=true; lastKey=""; publish(); draw(true);
-      }
-    }
-    else if(k==="n"||k==="N"){
-      if(confirm("Neuen Raum mit neuem Code öffnen?")){ try{ localStorage.removeItem("hk-host"); }catch(x){} location.hash=""; location.reload(); }
-    }
-  });
-
-  function list(){ return G.order.map(function(id){ return G.players[id]; }).filter(Boolean); }
-  function ranked(){ return list().slice().sort(function(a,b){ return b.s-a.s || String(a.n).localeCompare(String(b.n)); }); }
-  function counts(qi){
-    var c=[0,0,0,0], a=G.answers[qi===undefined?G.qi:qi]||{};
-    Object.keys(a).forEach(function(id){ var v=a[id].a; if(v>=0&&v<4) c[v]++; });
-    return c;
-  }
-  /* pro Team: wie viele haben geantwortet, wie viele richtig, Verteilung */
-  function teamQ(){
-    var q=QUIZ[G.qi], a=G.answers[G.qi]||{}, out=[{n:0,ans:0,ok:0,c:[0,0,0,0]},{n:0,ans:0,ok:0,c:[0,0,0,0]}];
-    list().forEach(function(p){
-      var t=out[p.tm===1?1:0]; t.n++;
-      var r=a[p.id]; if(!r) return;
-      t.ans++; t.c[r.a]++; if(q.t!=="poll" && r.a===q.r) t.ok++;
-    });
-    return out;
-  }
-  function stateObj(){
-    var left=(G.phase==="question") ? Math.max(0, G.endsAt-Date.now()) : 0;
-    var cs=(G.phase==="question") ? [0,0,0,0] : counts();
-    var a=G.answers[G.qi]||{};
-    return { ph:G.phase, qi:G.qi, left:left, an:Object.keys(a).length, cs:cs, out:G.out,
-      ps:list().map(function(p){ return {id:p.id,n:p.n,ar:p.ar,ac:p.ac,tm:p.tm,s:p.s,last:p.last,nr:p.nr,bm:p.bm,em:p.em,jk:p.jk,stk:p.stk,bstk:p.bstk,bon:p.bon,jg:p.jg,jh:p.jh,keep:p.keep||null}; }),
-      ev:G.evts.slice(-14), r:ROOM };
-  }
-  var lastSave=0;
-  function publish(){
-    pub(tS(), stateObj(), true); dirty=false;
-    if(Date.now()-lastSave>1000){ lastSave=Date.now(); store("hk-game-"+ROOM, JSON.stringify(G)); }
-  }
-
-  var lastPub=0;
-  function tick(){
-    if(G.phase==="question"){
-      var done=Object.keys(G.answers[G.qi]||{}).length;
-      if(Date.now()>=G.endsAt || (G.order.length>0 && done>=G.order.length)){ score(); G.phase="reveal"; dirty=true; }
-    }
-    var now=Date.now();
-    if(dirty || (G.phase==="question" && now-lastPub>450) || now-lastPub>2500){ publish(); lastPub=now; }
-    draw(); paintRail(); applyDance();
-  }
-  function addEvt(t,e,n,ar,ac,tm,pid){
-    G.ekey++; G.evts.push({k:G.ekey,t:t,e:e,n:n,ar:ar,ac:ac,tm:tm,pid:pid||""});
-    while(G.evts.length>20) G.evts.shift();
-    dirty=true;
-  }
-  var rateLog={};
-  function rateOk(p){ var now=Date.now(), a=rateLog[p.id]||(rateLog[p.id]=[]); while(a.length && now-a[0]>5000) a.shift(); if(a.length>=12) return false; a.push(now); return true; }
-
-  function handle(m){
-    if(!m||!m.id) return;
-    if(m.t==="join"){
-      if(G.players[m.id]){ dirty=true; return; }
-      var nm=String(m.n||"").trim().slice(0,16) || "Anonym";
-      if(G.banned[nm.toLowerCase()]){ G.out[m.id]="ban"; dirty=true; return; }
-      if(G.order.length>=MAXP){ G.out[m.id]="full"; dirty=true; return; }
-      delete G.out[m.id];
-      G.players[m.id]={id:m.id,n:nm,ar:clamp(parseInt(m.ar,10)||0,0,ARCH.length-1),tm:(m.tm===1?1:0),
-        ac:String(m.ac||"0,0,0,0,0").replace(/[^0-9,]/g,"").slice(0,24),
-        s:0,last:0,nr:0,bm:0,em:0,jk:0,stk:0,bstk:0,bon:0,jg:-1,jh:-1,keep:null};
-      G.order.push(m.id);
-      toast(TEAM[m.tm===1?1:0].i, nm+" ist dabei");
-      dirty=true; return;
-    }
-    var p=G.players[m.id]; if(!p) return;
-    if(m.t==="answer"){
-      if(G.phase!=="question" || m.qi!==G.qi) return;
-      if(!G.answers[G.qi]) G.answers[G.qi]={};
-      if(G.answers[G.qi][m.id]) return;
-      G.answers[G.qi][m.id]={a:clamp(parseInt(m.a,10)||0,0,nOpts(QUIZ[G.qi])-1), ms:Math.max(0,G.endsAt-Date.now())};
-      if(!seenAns[m.id+":"+G.qi]){ seenAns[m.id+":"+G.qi]=1; sndBlip(); }
-      dirty=true; return;
-    }
-    if(m.t==="joker"){
-      var q=QUIZ[G.qi];
-      if(G.phase!=="question" || m.qi!==G.qi || q.t==="poll") return;
-      if(G.answers[G.qi] && G.answers[G.qi][m.id]) return;
-      if(m.j==="gold" && p.jg<0){ p.jg=G.qi; p.jk++; addEvt("joker","gold",p.n,p.ar,p.ac,p.tm); }
-      else if(m.j==="half" && p.jh<0 && q.t==="mc"){
-        p.jh=G.qi; p.jk++;
-        var right=q.r, wrong=[0,1,2,3].filter(function(x){return x!==right;});
-        var keep2=wrong[Math.floor(Math.random()*wrong.length)];
-        p.keep=[0,1,2,3].filter(function(x){ return x===right||x===keep2; });
-        addEvt("joker","half",p.n,p.ar,p.ac,p.tm);
-      }
-      dirty=true; return;
-    }
-    if(m.t==="look"){
-      var nn=String(m.n||"").trim().slice(0,16);
-      if(nn && !G.banned[nn.toLowerCase()]) p.n=nn;
-      p.ar=clamp(parseInt(m.ar,10)||0,0,ARCH.length-1);
-      p.ac=String(m.ac||p.ac).replace(/[^0-9,]/g,"").slice(0,24);
-      /* Team nur in der Lobby wechselbar — sonst könnte man zum führenden Team springen */
-      if(G.phase==="lobby") p.tm=(m.tm===1?1:0);
-      dirty=true; lastKey=""; return;
-    }
-    if(m.t==="emo"||m.t==="shout"||m.t==="dance"){
-      if(!rateOk(p)) return;
-      p.em++;
-      if(m.t==="dance") danceUntil[p.id]={t:Date.now()+4000, d:clamp(parseInt(m.e,10)||1,1,5)};
-      addEvt(m.t, String(m.e||"").slice(0,40), p.n, p.ar, p.ac, p.tm, p.id);
-    }
-  }
-
-  function score(){
-    var q=QUIZ[G.qi], a=G.answers[G.qi]||{}, S=secsOf(q)*1000;
-    list().forEach(function(p){
-      var add=0; p.bon=0; var rec=a[p.id];
-      if(q.t==="poll"){
-        add = rec ? 50 : 0;
-      } else if(rec && rec.a===q.r){
-        add=100+Math.round(60*clamp(rec.ms/S,0,1));
-        p.stk++; if(p.stk>p.bstk) p.bstk=p.stk;
-        p.bon=Math.min(60,(p.stk-1)*20); add+=p.bon;
-        if(p.jg===G.qi) add*=2;
-        if(q.fin) add*=2;
-        p.nr++; if(rec.ms>p.bm) p.bm=rec.ms;
-      } else { p.stk=0; }
-      p.last=add; p.s+=add;
-    });
-  }
-  function advance(){
-    if(G.phase==="lobby"){
-      if(!G.order.length) return;
-      audio(); G.qi=0; G.phase="question"; G.endsAt=Date.now()+secsOf(QUIZ[0])*1000+1300;
-      list().forEach(function(p){ p.keep=null; });
-    }
-    else if(G.phase==="question"){ score(); G.phase="reveal"; }
-    else if(G.phase==="reveal"){ G.phase="scores"; }
-    else if(G.phase==="scores"){
-      if(G.qi<QUIZ.length-1){
-        G.qi++; G.phase="question"; G.endsAt=Date.now()+secsOf(QUIZ[G.qi])*1000+1300;
-        G.evts=[]; list().forEach(function(p){ p.keep=null; });
-      } else G.phase="final";
-    }
-    else if(G.phase==="final"){ G.phase="photo"; }
-    dirty=true; lastKey=""; publish(); draw(true);
-  }
-
-  function kick(id,ban){
-    var p=G.players[id]; if(!p) return;
-    if(ban) G.banned[p.n.toLowerCase()]=1;
-    G.out[id]=ban?"ban":"kick"; G.gone[id]=p; delete G.players[id];
-    G.order=G.order.filter(function(x){ return x!==id; });
-    toast(ban?"⛔":"✕", p.n+(ban?" gesperrt":" entfernt"));
-    dirty=true; lastKey=""; publish(); draw(true); renderMgr();
-  }
-  function readmit(id){
-    var p=G.gone[id]; if(!p) return;
-    if(G.order.length>=MAXP){ toast("!", "Quiz ist voll"); return; }
-    delete G.banned[p.n.toLowerCase()]; delete G.out[id]; delete G.gone[id];
-    G.players[id]=p; if(G.order.indexOf(id)<0) G.order.push(id);
-    toast("✔", p.n+" ist wieder dabei");
-    dirty=true; lastKey=""; publish(); draw(true); renderMgr();
-  }
-  function renderMgr(){
-    var old=byId("mgr"); if(old) old.remove();
-    if(!mgrOpen) return;
-    var ps=list(), d=document.createElement("div");
-    d.id="mgr"; d.className="mgr";
-    d.innerHTML='<div class="mgrbox"><div style="display:flex;align-items:baseline;gap:12px"><span class="eyebrow">Teilnehmer verwalten</span>'+
-      '<b style="margin-left:auto">'+ps.length+' / '+MAXP+'</b></div><div class="mgrlist">'+
-      (ps.length ? ps.map(function(p){
-        return '<div class="mgrrow"><span class="mf">'+figSVG(p.ar,p.ac,p.tm)+'</span><b>'+esc(p.n)+' '+TEAM[p.tm].i+'</b>'+
-          '<button class="mini" data-kick="'+p.id+'">Entfernen</button><button class="mini warn" data-ban="'+p.id+'">Sperren</button></div>';
-      }).join("") : '<p class="p">Noch niemand dabei.</p>')+
-      (Object.keys(G.gone).length ? '<div style="border-top:1px solid var(--line);padding-top:10px"><span class="eyebrow" style="margin-bottom:7px">Entfernt — wieder zulassen?</span>'+
-        Object.keys(G.gone).map(function(id){ var p=G.gone[id];
-          return '<div class="mgrrow" style="margin-top:6px;opacity:.75"><span class="mf">'+figSVG(p.ar,p.ac,p.tm)+'</span><b>'+esc(p.n)+'</b>'+
-            '<span style="font-family:\'JetBrains Mono\',monospace;font-size:13px;color:var(--ink3)">'+p.s+' Pkt</span>'+
-            '<button class="mini dark" data-back="'+id+'">Wieder zulassen</button></div>';
-        }).join("")+'</div>' : '')+'</div>'+
-      '<button class="btn ghost" id="mgrclose">Schließen</button></div>';
-    document.body.appendChild(d);
-    on("mgrclose",function(){ mgrOpen=false; renderMgr(); });
-    each("[data-kick]",function(b){ b.onclick=function(){ kick(b.getAttribute("data-kick"),false); }; });
-    each("[data-ban]",function(b){ b.onclick=function(){ kick(b.getAttribute("data-ban"),true); }; });
-    each("[data-back]",function(b){ b.onclick=function(){ readmit(b.getAttribute("data-back")); }; });
-    d.onclick=function(ev){ if(ev.target===d){ mgrOpen=false; renderMgr(); } };
-  }
-
-  /* ---------- Anzeige ---------- */
-  function applyDance(){
-    each(".figw,.t3",function(w){
-      var id=w.getAttribute("data-fig"), f=w.querySelector(".fig"); if(!f) return;
-      var e=danceUntil[id], act=e && e.t>Date.now(), p=G.players[id];
-      var base=(w.classList.contains("t3") && p) ? danceOf(p.ac) : 0;
-      var d=act?(e.d||0):base;
-      if(f.getAttribute("data-dn")===String(d)) return;
-      f.setAttribute("data-dn",String(d)); clearDance(f); if(d>0) f.classList.add("dn"+d);
-    });
-  }
-  function paintTimer(){
-    if(G.phase!=="question") return;
-    var q=QUIZ[G.qi], left=Math.max(0,G.endsAt-Date.now()), S=secsOf(q)*1000;
-    var n=byId("bn"), b=byId("bt"); if(!n||!b) return;
-    var s=Math.min(secsOf(q),Math.ceil(left/1000));
-    n.textContent=s; n.classList.toggle("hot",s<=5);
-    b.style.width=clamp((left/S)*100,0,100)+"%";
-    if(s<=5 && s>0 && s!==lastSec){ lastSec=s; sndTick(); }
-    var c=byId("anc"); if(c) c.textContent=Object.keys(G.answers[G.qi]||{}).length+" von "+G.order.length+" haben geantwortet";
-  }
-  function paintRail(){
-    var ul=byId("lb"); if(!ul) return;
-    var rs=ranked();
-    ul.innerHTML = rs.map(function(p,i){
-      if(lastScores[p.id]!==undefined && p.s>lastScores[p.id]) bumped[p.id]=Date.now();
-      var fresh=bumped[p.id] && (Date.now()-bumped[p.id])<1400, jb="";
-      if(G.phase!=="lobby"){ if(p.jg===G.qi) jb+="⭐"; if(p.jh===G.qi) jb+="½"; if(p.stk>=2) jb+='<span class="flame">'+p.stk+'×</span>'; }
-      return '<li class="'+(i===0?"p1 ":"")+(fresh?"bump":"")+'"><span class="r">'+(i+1)+'</span>'+
-        '<span class="d" style="background:'+TEAM[p.tm].c+'"></span><span class="n">'+esc(p.n)+'</span>'+
-        '<span>'+jb+'</span><span class="s">'+p.s+'</span></li>';
-    }).join("") || '<li style="border:0;color:var(--ink3);grid-template-columns:1fr">Noch niemand</li>';
-    var c=byId("lbCount"); if(c) c.textContent=rs.length;
-    var rt=byId("railtug"); if(rt){ var key=JSON.stringify(teamStats(list())); if(rt.getAttribute("data-k")!==key){ rt.setAttribute("data-k",key); rt.innerHTML=tugHTML(teamStats(list())); } }
-    rs.forEach(function(p){ lastScores[p.id]=p.s; });
-  }
-  function railHTML(){
-    return '<aside class="rail"><div class="railteam"><span class="eyebrow">Team-Duell</span><div id="railtug"></div></div>'+
-      '<h3>Rangliste'+(muted?' 🔇':'')+' <b id="lbCount">0</b></h3><ul class="lb" id="lb"></ul></aside>';
-  }
-  function nextBtn(label){ return '<button class="nextbtn" id="nxt">'+esc(label)+' <span>›</span></button>'; }
-  function wireNext(){ on("nxt", advance); }
-
-  var seenEvt={};
-  function playEvents(){
-    G.evts.forEach(function(r){
-      if(!r||seenEvt[r.k]) return; seenEvt[r.k]=1;
-      if(r.t==="joker"){ jQueue.push(r); runJoker(); return; }
-      if(r.t==="dance"){ applyDance(); return; }
-      var d=document.createElement("div");
-      d.className="fl"+(r.t==="shout"?" pill":"");
-      d.style.left=(6+Math.random()*80)+"vw"; d.style.animationDelay=(Math.random()*.35)+"s";
-      if(r.t==="shout") d.style.borderColor=TEAM[r.tm===1?1:0].c;
-      d.innerHTML=esc(r.e)+(r.n?'<small>'+esc(r.n)+'</small>':"");
-      floatLayer.appendChild(d);
-      setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); },5400);
-    });
-  }
-  function runJoker(){
-    if(jBusy||!jQueue.length) return;
-    jBusy=true;
-    var r=jQueue.shift(), gold=(r.e==="gold"), d=document.createElement("div");
-    d.className="jcard "+(gold?"gold":"half");
-    d.innerHTML=(gold?'<span class="jrays"></span>':"")+'<span class="jfg">'+figSVG(r.ar,r.ac,r.tm,gold?"cheer":"dn5")+'</span>'+
-      '<span style="display:flex;flex-direction:column"><span class="jl">'+(gold?"Gold-Joker":"50 : 50-Joker")+'</span>'+
-      '<span class="jn">'+esc(r.n||"Jemand")+'</span><span class="jd">'+(gold?"Doppelte Punkte auf diese Frage.":"Zwei Antworten sind weggefallen.")+'</span></span>';
-    jfxLayer.appendChild(d);
-    setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); jBusy=false; runJoker(); },2650);
-  }
-
-  var lastPhase="";
-  function draw(force){
-    if(G.phase!==lastPhase){
-      if(lastPhase && G.phase==="reveal") sndReveal();
-      if(lastPhase && G.phase==="final"){ sndFanfare(); confetti(110); }
-      if(lastPhase && G.phase==="photo"){ confetti(60); }
-      lastPhase=G.phase; lastSec=-1;
-    }
-    playEvents();
-    var key=G.phase+":"+G.qi+":"+G.order.length+":"+muted+":"+(G.phase==="lobby"?list().map(function(p){return p.n+p.ar+p.ac+p.tm;}).join("|"):"");
-    if(!force && key===lastKey) return;
-    lastKey=key;
-    if(G.phase==="lobby")    return lobby();
-    if(G.phase==="question") return question();
-    if(G.phase==="reveal")   return reveal();
-    if(G.phase==="scores")   return scores();
-    if(G.phase==="final")    return final();
-    return photo();
-  }
-
-  function lobby(){
-    var ps=list(), ts=teamStats(ps);
-    h('<div class="adm"><div class="main"><div class="lobby">'+
-      '<div class="ltop">'+
-        '<div class="qrbox" id="qb"><canvas id="qr"></canvas></div>'+
-        '<div><span class="eyebrow">Das Gewissens-Duell</span><div class="ltitle"><span style="color:var(--herz)">Herz</span> vs. <span style="color:var(--kopf)">Kopf</span></div>'+
-          '<div class="joinaddr" style="margin-top:6px">'+esc(baseUrl().replace(/^https?:\/\//,""))+'</div></div>'+
-        '<div><span class="eyebrow">Code</span><div class="roomcode">'+ROOM+'</div></div>'+
-        '<div style="display:flex;flex-direction:column;gap:8px;margin-left:auto">'+
-          '<button class="startbtn" id="go"'+(ps.length?"":" disabled")+'>Quiz starten</button>'+
-          '<button class="mini dark" id="mgr2">'+(ps.length? ps.length+" von "+MAXP+" dabei · verwalten" : "Noch niemand dabei")+'</button></div>'+
-      '</div>'+
-      '<div style="display:flex;gap:14px;align-items:center">'+
-        '<div class="dcard t0" style="flex:1;flex-direction:row;align-items:center;gap:14px;padding:10px 18px"><span style="font-size:30px">❤</span><div><div class="dl">Team Herz · Gesinnung</div><b style="font-size:24px">'+ts[0].n+' dabei</b></div></div>'+
-        '<div class="dcard t1" style="flex:1;flex-direction:row;align-items:center;gap:14px;padding:10px 18px"><span style="font-size:30px">⚙</span><div><div class="dl">Team Kopf · Verantwortung</div><b style="font-size:24px">'+ts[1].n+' dabei</b></div></div>'+
-      '</div>'+
-      hallHTML(ps.map(function(p){ return {id:p.id,n:p.n,ar:p.ar,ac:p.ac,tm:p.tm}; }))+
-      '</div></div>'+railHTML()+'</div>');
-    qr(); paintRail();
-    on("go", advance);
-    on("mgr2", function(){ mgrOpen=true; renderMgr(); });
-  }
-  function qr(){
-    var cv=byId("qr"); if(!cv) return;
-    if(typeof QRious==="undefined"){ var b=byId("qb"); if(b) b.style.display="none"; return; }
-    try{ new QRious({element:cv, value:roomUrl(ROOM), size:620, level:"M", background:"#ffffff", foreground:"#17172B", padding:0}); }catch(e){}
-  }
-  function kindChip(q){
-    if(q.fin) return '<span class="kind fin">★ Finale · doppelte Punkte</span>';
-    if(q.t==="gv") return '<span class="kind gv">❤ Herz oder Kopf? ⚙</span>';
-    if(q.t==="poll") return '<span class="kind poll">Gewissensfrage · keine falsche Antwort</span>';
-    return '<span class="kind mc">Wissensfrage</span>';
-  }
-  function showTOP(qi){
-    var m=document.querySelector(".main"); if(!m) return;
-    var q=QUIZ[qi], d=document.createElement("div");
-    d.className="topcard";
-    d.innerHTML='<span class="tc"><span class="tl">'+(q.fin?"Finale":"Frage")+'</span><span class="tn">'+(qi+1)+'</span>'+
-      '<span class="tk kind '+(q.fin?"fin":q.t)+'">'+strip(kindChip(q))+'</span></span>';
-    m.appendChild(d);
-    setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); },1950);
-  }
-  function question(){
-    var q=QUIZ[G.qi], body;
-    if(q.t==="gv"){
-      body='<div class="gvstage">'+
-        '<div class="gvhalf h"><span class="gi">❤</span><span class="gl">Herz</span><span class="gs">Gesinnungsethik</span></div>'+
-        '<div class="gvhalf k"><span class="gi">⚙</span><span class="gl">Kopf</span><span class="gs">Verantwortungsethik</span></div>'+
-        '<div class="gvcase"><span class="eyebrow">Welche Ethik steckt dahinter?</span><h2 class="bq">'+esc(q.q)+'</h2></div></div>';
-    } else {
-      body='<h2 class="bq">'+esc(q.q)+'</h2><div class="qtiles"'+(q.a.length===2?' style="grid-template-columns:1fr 1fr"':'')+'>'+ q.a.map(function(t,n){
-        var col = q.t==="poll" ? TEAM[q.pa[n]].c : COLORS[n];
-        return '<div class="qtile" style="--qc:'+col+';animation-delay:'+(1.5+n*.08)+'s">'+(q.t==="poll"?'<span style="font-size:clamp(30px,2.8vw,50px)">'+TEAM[q.pa[n]].i+'</span>':shape(n))+
-          '<span class="qt">'+esc(t)+'</span></div>';
-      }).join("")+'</div>';
-    }
-    h('<div class="adm"><div class="main">'+
-      '<div class="qhead"><span class="step">'+(G.qi+1)+' / '+QUIZ.length+'</span>'+kindChip(q)+
-        '<span class="cnt" id="anc"></span></div>'+
-      '<div class="btimer"><span class="bn" id="bn">'+secsOf(q)+'</span><span class="bt"><i id="bt" style="width:100%"></i></span></div>'+
-      body+'</div>'+railHTML()+nextBtn("Auflösen")+'</div>');
-    paintTimer(); paintRail(); wireNext();
-    if(topShown!==G.qi){ topShown=G.qi; showTOP(G.qi); sndStart(); }
-  }
-  function reveal(){
-    var q=QUIZ[G.qi], cs=counts(), tot=0, i, tq=teamQ(), left, right;
-    for(i=0;i<4;i++) tot+=cs[i];
-    if(q.t==="gv"){
-      left='<div class="gvstage" style="flex:0 0 auto;height:clamp(180px,26vh,300px)">'+
-        [0,1].map(function(n){ var pct=tot?Math.round(cs[n]/tot*100):0;
-          return '<div class="gvhalf '+(n?"k":"h")+(n!==q.r?" dim":"")+'"><span class="gi" style="font-size:clamp(40px,4vw,70px)">'+(n?"⚙":"❤")+(n===q.r?" ✓":"")+'</span>'+
-            '<span class="gc">'+pct+'%</span><span class="gs">'+cs[n]+' Stimmen</span></div>'; }).join("")+'</div>'+
-        '<h2 class="bq rev" style="font-size:clamp(18px,1.7vw,30px)">'+esc(q.q)+'</h2>';
-    } else {
-      left='<h2 class="bq rev">'+esc(q.q)+'</h2><ul class="alist'+(q.t==="poll"?" poll":"")+'">'+ q.a.map(function(t,n){
-        var pct=tot?Math.round(cs[n]/tot*100):0, col=q.t==="poll"?TEAM[q.pa[n]].c:COLORS[n];
-        return '<li class="'+(q.t!=="poll"&&n===q.r?"right":"")+'" style="--qc:'+col+'"><span class="abar" style="--w:'+pct+'%"></span>'+
-          '<span class="ai">'+(q.t==="poll"?'<span style="color:#fff;font-size:1.1em">'+TEAM[q.pa[n]].i+'</span>':shape(n))+'</span><span class="at">'+esc(t)+'</span><span class="ac">'+cs[n]+'</span></li>';
-      }).join("")+'</ul>';
-    }
-    left+='<div class="qexpl">'+q.e+'</div>';
-    if(q.t==="poll"){
-      right='<span class="eyebrow">So haben die Teams gewählt</span><div class="duel">'+[0,1].map(function(t){
-        var d=tq[t], a0=d.ans?Math.round(d.c[0]/d.ans*100):0;
-        return '<div class="dcard t'+t+'"><span class="dl">'+TEAM[t].i+' '+TEAM[t].n+'</span><span class="dv">'+a0+'%</span>'+
-          '<span class="dm">wählen „'+esc(q.a[0].split(":")[0])+'“ · '+d.ans+' Stimmen</span></div>'; }).join("")+'</div>'+
-        '<p class="qexpl" style="border-left-color:var(--kopf)">Alle, die mitgemacht haben: <b>+50 Punkte</b> fürs Nachdenken.</p>';
-    } else {
-      var p0=tq[0].n?tq[0].ok/tq[0].n:0, p1=tq[1].n?tq[1].ok/tq[1].n:0;
-      right='<span class="eyebrow">Team-Duell · diese Frage</span><div class="duel">'+[0,1].map(function(t){
-        var d=tq[t], pc=d.n?Math.round(d.ok/d.n*100):0, win=(t===0?p0>p1:p1>p0);
-        return '<div class="dcard t'+t+'">'+(win?'<span class="dwin">Runde gewonnen</span>':'')+'<span class="dl">'+TEAM[t].i+' '+TEAM[t].n+'</span>'+
-          '<span class="dv">'+pc+'%</span><span class="dm">'+d.ok+' von '+d.n+' richtig</span></div>'; }).join("")+'</div>';
-    }
-    right+='<span class="eyebrow" style="margin-top:6px">Gesamtstand · Durchschnitt pro Person</span>'+tugHTML(teamStats(list()),true);
-    h('<div class="adm"><div class="main">'+
-      '<div class="qhead"><span class="step">'+(G.qi+1)+' / '+QUIZ.length+'</span>'+kindChip(q)+
-        '<span class="cnt">'+(q.t==="poll"?tot+" Meinungen":cs[q.r]+" von "+G.order.length+" richtig")+'</span></div>'+
-      '<div class="revwrap"><div class="revleft">'+left+'</div><div class="revright">'+right+'</div></div>'+
-      '</div>'+railHTML()+nextBtn(G.qi<QUIZ.length-1?"Zwischenstand":"Endstand")+'</div>');
-    paintRail(); wireNext();
-    if(q.t!=="poll" && cs[q.r]>0 && cs[q.r]===G.order.length) confetti(50);
-  }
-  function scores(){
-    var all=ranked(), rs=all.slice(0,5), top=all.slice(0,3), pod=["g1","g2","g3"], ord=[1,0,2];
-    h('<div class="adm"><div class="main">'+
-      '<div class="qhead"><span class="step">Zwischenstand nach Frage '+(G.qi+1)+'</span><span class="cnt">S = direkt weiter</span></div>'+
-      tugHTML(teamStats(list()),true)+
-      '<div style="flex:1;display:flex;gap:clamp(14px,2vw,34px);min-height:0;margin-top:clamp(10px,1.6vh,22px)">'+
-      '<div class="scoreboard" style="flex:1 1 52%">'+ (rs.length ? rs.map(function(p,i){
-        var gold=(p.jg===G.qi && p.last>0);
-        return '<div class="srow t'+p.tm+(i===0?" top1":"")+'" style="animation-delay:'+(i*.07)+'s"><span class="sr">'+(i+1)+'</span>'+
-          '<span class="sf">'+figSVG(p.ar,p.ac,p.tm)+'</span><span class="sn">'+esc(p.n)+'</span>'+
-          '<span class="ss">'+p.s+(p.last?'<span class="sd">+'+p.last+(gold?" ×2":"")+'</span>':'')+'</span></div>';
-      }).join("") : '<p class="p">Noch keine Punkte.</p>')+'</div>'+
-      '<div class="top3" style="flex:1 1 48%">'+ ord.map(function(idx){
-        var p=top[idx]; if(!p) return '';
-        return '<div class="t3 '+pod[idx]+'" data-fig="'+esc(p.id)+'"><span class="t3f">'+figSVG(p.ar,p.ac,p.tm,"dn"+danceOf(p.ac))+'</span>'+
-          '<span class="t3n">'+esc(p.n)+'</span><span class="t3s">'+p.s+' Pkt</span><span class="t3b"><span class="t3r">'+(idx+1)+'</span></span></div>';
-      }).join("")+'</div></div>'+
-      '</div>'+railHTML()+nextBtn(G.qi<QUIZ.length-1?"Nächste Frage":"Siegerehrung")+'</div>');
-    paintRail(); applyDance(); wireNext();
-  }
-  function final(){
-    var rs=ranked(), top=rs.slice(0,4), ts=teamStats(list());
-    var bar=[44,33,24,16], fig=[34,30,27,24], del=[3.0,2.0,1.1,0.4], lr=[3,1,0,2];
-    var w = Math.abs(ts[0].avg-ts[1].avg)<1 ? -1 : (ts[0].avg>ts[1].avg?0:1);
-    h('<div class="adm"><div class="main">'+
-      '<div class="qhead"><div><span class="eyebrow">Endergebnis</span><h1 class="bq" style="margin:6px 0 0">Die Akademie hat entschieden.</h1></div></div>'+
-      '<div class="final"><div class="podium">'+ lr.map(function(idx){
-        var e=top[idx]; if(!e) return ""; var d=del[idx];
-        return '<div class="pod g'+(idx+1)+'"><span class="pfw" style="height:'+fig[idx]+'%;animation-delay:'+(d+.5)+'s">'+
-          (idx===0?'<span class="glow"></span>':"")+figSVG(e.ar,e.ac,e.tm,idx<=1?"cheer":"")+'</span>'+
-          '<span class="pa" style="animation-delay:'+(d+.62)+'s">'+esc(OFFICES[idx][0])+'</span>'+
-          '<span class="pn" style="animation-delay:'+(d+.7)+'s">'+esc(e.n)+'</span>'+
-          '<span class="ps" style="animation-delay:'+(d+.78)+'s">'+e.s+' Pkt</span>'+
-          '<span class="pb" style="--h:'+bar[idx]+'%;animation-delay:'+d+'s"><span class="pr">'+(idx+1)+'</span></span></div>';
-      }).join("")+'</div>'+
-      '<div class="winbar '+(w<0?"tie":"t"+w)+'"><span class="wi">'+(w<0?"❤⚙":TEAM[w].i)+'</span><div>'+
-        '<div class="wt">'+(w<0?"Unentschieden! Herz und Kopf gleichauf.":TEAM[w].n+" gewinnt das Duell · Ø "+Math.round(ts[w].avg)+" zu "+Math.round(ts[1-w].avg))+'</div>'+
-        '<div class="ws">„… nicht absolute Gegensätze, sondern Ergänzungen.“ (Max Weber) Ihr braucht einander.</div></div></div>'+
-      '</div></div>'+railHTML()+nextBtn("Gruppenfoto")+'</div>');
-    paintRail(); wireNext();
-  }
-  function photo(){
-    var rs=ranked();
-    h('<div class="adm"><div class="main">'+
-      '<div class="qhead"><div><span class="eyebrow">Die Schule von Athen · Klassenfoto</span><h1 class="bq" style="margin:6px 0 0">Alle '+rs.length+' Philosoph:innen auf einem Bild.</h1></div>'+
-        '<span class="cnt">D = alle tanzen</span></div>'+
-      hallHTML(rs.map(function(p,i){ return {id:p.id,n:p.n,ar:p.ar,ac:p.ac,tm:p.tm,tag:(i+1),tt:(i<4?OFFICES[i][0]:""),glow:(i===0)}; }),{dusk:true})+
-      '</div>'+railHTML()+'</div>');
-    paintRail();
-  }
+function paintT(t){
+  var v=T[t.getAttribute("data-tally")], tot=v.a+v.b;
+  t.querySelector('[data-n="a"]').textContent=v.a; t.querySelector('[data-n="b"]').textContent=v.b;
+  var pa=tot?Math.round(v.a/tot*100):50;
+  /* Mehr Stimmen ziehen das Seil auf die eigene Seite */
+  t.querySelector(".knot").style.setProperty("--p",(tot?(100-pa):50)+"%");
+  t.querySelector('[data-p="a"]').textContent=tot?pa+"%":"–";
+  t.querySelector('[data-p="b"]').textContent=tot?(100-pa)+"%":"–";
+}
+function tallyKey(side){
+  var t=slot.querySelector("[data-tally]"); if(!t) return;
+  var host=t.closest("[data-step]"); if(host && !host.classList.contains("on")) return;
+  T[t.getAttribute("data-tally")][side]++; paintT(t);
 }
 
-/* ================================================================= HANDY */
-function funTitles(rs){
-  var out={}, taken={};
-  function give(p,t){ if(p&&!out[p.id]&&!taken[t]){ out[p.id]=t; taken[t]=1; } }
-  function best(f){ var b=null; rs.forEach(function(p){ if(f(p)>0 && (!b||f(p)>f(b))) b=p; }); return b; }
-  give(best(function(p){return p.bm||0;}),"Schnellstes Gewissen");
-  give(best(function(p){return p.nr||0;}),"Tugend-Profi");
-  give(best(function(p){return p.em||0;}),"Stimmungskanone der Akademie");
-  give(best(function(p){return p.bstk||0;}),"Längste Serie");
-  var g=null; rs.forEach(function(p){ if((p.jk||0)>=2 && !g) g=p; }); give(g,"Setzt alles auf Gold");
-  var z=null; rs.forEach(function(p){ if(!(p.nr||0) && !z) z=p; }); give(z,"Weiß, dass er/sie nichts weiß");
-  var k=0; rs.forEach(function(p){ if(!out[p.id]){ out[p.id]=FILLTITLES[k%FILLTITLES.length]; k++; } });
-  return out;
+function quizSlide(el){
+  document.getElementById("qurl").textContent=QUIZURL.replace(/^https?:\/\//,"").replace(/\/$/,"");
+  var cv=document.getElementById("qrcv");
+  if(typeof QRious!=="undefined"){ try{ new QRious({element:cv,value:QUIZURL,size:760,level:"M",background:"#ffffff",foreground:"#17172B",padding:0}); }catch(e){} }
+  else document.getElementById("qrbox").style.display="none";
+  var c=document.getElementById("conf"), cols=["#E0482F","#2752C7","#C4952B","#0C9483","#6A4DE0"];
+  for(var i=0;i<40;i++){ var d=document.createElement("i"); d.style.left=Math.random()*100+"%";
+    d.style.background=cols[i%cols.length]; d.style.animationDuration=(4+Math.random()*4)+"s";
+    d.style.animationDelay=(-Math.random()*8)+"s"; d.style.opacity=.55; c.appendChild(d); }
 }
 
-function startPlayer(){
-  var S=null, lastKey="", myAns={}, tLeft=0, tAt=0, me=null, look=null, editing=false;
-  try{ me=JSON.parse(store("hk-me-"+ROOM)||"null"); }catch(e){}
-  if(me && me.room!==ROOM) me=null;
-  try{ look=JSON.parse(store("hk-look")||"null"); }catch(e){}
+/* ---------------------------------------------------------- Uhr */
+var t0=0, run=false, acc=0;
+function startClock(){ if(!run && !acc){ t0=Date.now(); run=true; } }
+function toggleClock(){ if(run){ acc+=Date.now()-t0; run=false; } else { t0=Date.now(); run=true; } }
+setInterval(function(){
+  var ms=acc+(run?Date.now()-t0:0), s=Math.floor(ms/1000), c=document.getElementById("clock");
+  c.textContent=Math.floor(s/60)+":"+("0"+s%60).slice(-2)+" / 8:00";
+  c.className=(run?"run":"")+(s>480?" over":"");
+},500);
 
-  onState=function(s){ S=s; tLeft=s.left||0; tAt=Date.now(); if(s.out && s.out[MYID]) return outScreen(s.out[MYID]); draw(); };
-  onMsg=null;
-  if(!me) join(); else waitScreen();
-  showBadge("Verbinde …");
-  netConnect(function(){ hideBadge(); if(me && !S) waitScreen(); });
-  setInterval(paintTimer,150);
+/* ---------------------------------------------------------- Tasten */
+document.addEventListener("keydown",function(e){
+  var k=e.key;
+  if(k===" "||k==="ArrowRight"||k==="PageDown"||k==="Enter"){ e.preventDefault(); next(); }
+  else if(k==="ArrowLeft"||k==="PageUp"||k==="Backspace"){ e.preventDefault(); prev(); }
+  else if(k==="n"||k==="N") notesEl.classList.toggle("show");
+  else if(k==="s"||k==="S"){ buildScript(); scriptEl.classList.toggle("show"); }
+  else if(k==="c"||k==="C") toggleClock();
+  else if(k==="f"||k==="F"){ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(function(){}); }
+  else if(k==="1") tallyKey("a");
+  else if(k==="2") tallyKey("b");
+  else if(k==="Home"){ cur=0; step=0; render(); }
+  else if(k==="End"){ cur=SL.length-1; step=0; render(); }
+});
+document.getElementById("nx").onclick=next;
+document.getElementById("pv").onclick=prev;
 
-  function players(){ return arr(S&&S.ps); }
-  function row(){ var ps=players(); for(var i=0;i<ps.length;i++) if(ps[i].id===MYID) return ps[i]; return null; }
-  function ranked(){ return players().slice().sort(function(a,b){ return b.s-a.s || String(a.n).localeCompare(String(b.n)); }); }
-  function myRank(){ var rs=ranked(); for(var i=0;i<rs.length;i++) if(rs[i].id===MYID) return {r:i+1,of:rs.length}; return {r:0,of:rs.length}; }
-  function send(o){ o.id=MYID; pub(tM(),o,false); }
-  function paintTimer(){
-    if(!S||S.ph!=="question") return;
-    var n=byId("tn"), b=byId("tb"); if(!n||!b) return;
-    var q=QUIZ[S.qi], left=Math.max(0,tLeft-(Date.now()-tAt)), s=Math.min(secsOf(q),Math.ceil(left/1000));
-    n.textContent=s; n.classList.toggle("hot",s<=5);
-    b.style.width=clamp((left/(secsOf(q)*1000))*100,0,100)+"%";
-  }
-  function bar(){
-    var r=row()||{n:(me&&me.n)||"",s:0,stk:0,tm:(me&&me.tm)||0};
-    return '<div class="crestbar">'+crestSVG+'<b>'+esc(r.n)+'</b><span class="tbadge t'+(r.tm|0)+'">'+TEAM[r.tm|0].i+' '+TEAM[r.tm|0].n.replace("Team ","")+'</span>'+
-      ((r.stk||0)>=2 ? '<span class="flame">'+r.stk+'×</span>' : '')+
-      '<span class="scl" style="margin-left:auto">Pkt</span><span class="sc" style="margin-left:6px">'+(r.s||0)+'</span></div>';
-  }
-  function reactBar(){
-    return '<div class="react">'+
-      '<div class="emobar">'+EMOJI.map(function(e,i){ return '<button class="emo" data-emo="'+i+'">'+e+'</button>'; }).join("")+'</div>'+
-      '<div class="shouts">'+SHOUTS.map(function(s,i){ return '<button class="sh" data-sh="'+i+'">'+esc(s)+'</button>'; }).join("")+'</div>'+
-      '<div class="dancerow">'+DANCE.slice(1).map(function(d,i){ return '<button class="dc" data-dn="'+(i+1)+'"><b>'+d[1]+'</b>'+esc(d[0])+'</button>'; }).join("")+'</div>'+
-      '<button class="lookbtn" id="edt">Name und Aussehen ändern</button></div>';
-  }
-  function myFig(){ return document.querySelector('[data-me] .fig') || document.querySelector('.minihall [data-fig="'+MYID+'"] .fig'); }
-  var meDanceTimer=null;
-  function danceMe(d){
-    var f=myFig(); if(!f) return; clearDance(f); if(d>0) f.classList.add("dn"+d);
-    if(meDanceTimer) clearTimeout(meDanceTimer);
-    meDanceTimer=setTimeout(function(){ var x=myFig(); if(x) clearDance(x); },4000);
-  }
-  function floatOwn(txt,pill){
-    var d=document.createElement("div"); d.className="fl"+(pill?" pill":""); d.style.left=(18+Math.random()*58)+"vw"; d.innerHTML=esc(txt);
-    floatLayer.appendChild(d); setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); },5200);
-  }
-  var RC={tok:6,max:6,last:Date.now(),lock:0,timer:null};
-  function reactOk(){
-    var now=Date.now(); if(now<RC.lock) return false;
-    RC.tok=Math.min(RC.max, RC.tok+(now-RC.last)/700); RC.last=now;
-    if(RC.tok<1){ RC.tok=0; RC.lock=now+1800; document.body.classList.add("cooling");
-      if(RC.timer) clearTimeout(RC.timer);
-      RC.timer=setTimeout(function(){ RC.tok=3; RC.last=Date.now(); document.body.classList.remove("cooling"); },1800); return false; }
-    RC.tok-=1; return true;
-  }
-  function wireReact(){
-    document.body.classList.toggle("cooling", Date.now()<RC.lock);
-    each("[data-emo]",function(b){ b.onclick=function(){ if(!reactOk()) return; var e=EMOJI[+b.getAttribute("data-emo")]; floatOwn(e,false); send({t:"emo",e:e}); }; });
-    each("[data-sh]",function(b){ b.onclick=function(){ if(!reactOk()) return; var s=SHOUTS[+b.getAttribute("data-sh")]; floatOwn(s,true); send({t:"shout",e:s}); }; });
-    each("[data-dn]",function(b){ b.onclick=function(){ if(!reactOk()) return; var d=+b.getAttribute("data-dn"); danceMe(d); send({t:"dance",e:d}); }; });
-    on("edt",function(){ join(true); });
-  }
-  function outScreen(why){
-    var txt = why==="ban" ? "Du wurdest für dieses Quiz gesperrt." : why==="full" ? "Das Quiz ist voll — es sind schon "+MAXP+" Leute drin." : "Du wurdest aus dem Quiz entfernt.";
-    h('<div class="wrap">'+bar()+'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;text-align:center">'+
-      '<h1 class="serif" style="font-size:30px">'+esc(txt)+'</h1><p class="p">Wenn das ein Versehen war, sag es der Person, die das Quiz leitet.</p></div></div>');
-  }
-  function waitScreen(){
-    h('<div class="wrap"><div class="crestbar">'+crestSVG+'<b>Das Gewissens-Duell</b></div>'+
-      '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;text-align:center">'+
-      '<span class="eyebrow">Raum '+esc(ROOM)+'</span><h1 class="serif" style="font-size:30px">Warte auf das Quiz …</h1>'+
-      '<p class="p">Sobald die Leitung den Raum geöffnet hat, geht es hier weiter.</p></div></div>');
-  }
-
-  function join(edit){
-    editing=!!edit;
-    var vor=me||look||{}, ar=vor.ar||0, tm=(vor.tm===1?1:0), ac=parseAc(vor.ac||"0,0,0,0,0");
-    var lockTeam = edit && S && S.ph!=="lobby";
-    function rowOpts(label, items, slot, render){
-      return '<div class="orow"><b>'+label+'</b><div class="opts">'+items.map(function(it,i){
-        return '<button class="opt'+(ac[slot]===i?" on":"")+'" data-o="'+slot+'" data-v="'+i+'">'+render(it,i)+'</button>'; }).join("")+'</div></div>';
-    }
-    function body(){
-      return '<div><span class="eyebrow">Dein Name</span><input class="field" id="nm" placeholder="z. B. Mia" maxlength="16" autocomplete="off" style="margin-top:7px" value="'+esc(vor.n||"")+'"></div>'+
-        '<div><span class="eyebrow">Dein Team'+(lockTeam?' · steht fest':'')+'</span><div class="teampick" style="margin-top:8px">'+
-          '<button class="tp t0'+(tm===0?" on":"")+'" data-tm="0"'+(lockTeam?" disabled":"")+'><span class="ti">❤</span>Team Herz<small>„Die Absicht zählt“</small></button>'+
-          '<button class="tp t1'+(tm===1?" on":"")+'" data-tm="1"'+(lockTeam?" disabled":"")+'><span class="ti">⚙</span>Team Kopf<small>„Die Folgen zählen“</small></button></div></div>'+
-        '<div><span class="eyebrow">Dein Vorbild</span><div class="archs" style="margin-top:8px">'+ARCH.map(function(A,i){
-          return '<button class="arch'+(ar===i?" on":"")+'" data-ar="'+i+'" style="--rc:'+(A.toga?"#C4952B":A.c)+'"><span class="af">'+figSVG(i,acStr(ac),tm)+'</span>'+
-            '<span>'+esc(archName(i,ac[0]))+'</span></button>'; }).join("")+'</div></div>'+
-        rowOpts("Typ", TYP, 0, function(t){ return esc(t); })+
-        rowOpts("Frisur", HAIR, 1, function(t){ return '<i style="background:'+t[1]+'"></i>'+esc(t[0]); })+
-        rowOpts("Hautton", SKIN, 2, function(c){ return '<i style="background:'+c+'"></i>'; })+
-        rowOpts("Lieblingstanz", DANCE, 3, function(d){ return '<b style="font-weight:400">'+d[1]+'</b>'+esc(d[0]); })+
-        rowOpts("Extra", EXTRA, 4, function(t){ return esc(t); });
-    }
-    function preview(){
-      return '<span class="pv">'+figSVG(ar,acStr(ac),tm,"dn"+ac[3])+'</span>'+
-        '<span class="pi"><b>'+esc(archName(ar,ac[0]))+' · '+TEAM[tm].i+'</b><i>'+esc(ARCH[ar].b)+'</i></span>'+
-        '<button class="gob" id="jo">'+(edit?"Übernehmen":"Beitreten")+'</button>';
-    }
-    h('<div class="wrap"><div class="crestbar">'+crestSVG+'<b>'+(edit?"Aussehen ändern":"Raum "+esc(ROOM))+'</b>'+
-      (edit?'<button class="mini" id="abort" style="margin-left:auto">Abbrechen</button>':'')+'</div>'+
-      '<div style="flex:1;display:flex;flex-direction:column;gap:16px;padding-block:16px" id="jbody">'+body()+'</div>'+
-      '<div class="pvbar" id="pvb">'+preview()+'</div></div>');
-    function repaint(){
-      var b=byId("jbody"); if(b){ var v=byId("nm").value, y=window.scrollY, rt=root.scrollTop; b.innerHTML=body(); byId("nm").value=v; root.scrollTop=rt; }
-      var p=byId("pvb"); if(p) p.innerHTML=preview();
-      wire();
-    }
-    function wire(){
-      each("[data-o]",function(b){ b.onclick=function(){ ac[+b.getAttribute("data-o")]=+b.getAttribute("data-v"); repaint(); }; });
-      each("[data-ar]",function(b){ b.onclick=function(){ ar=+b.getAttribute("data-ar"); repaint(); }; });
-      each("[data-tm]",function(b){ b.onclick=function(){ if(lockTeam) return; tm=+b.getAttribute("data-tm"); repaint(); }; });
-      on("abort",function(){ editing=false; lastKey=""; draw(); });
-      on("jo",function(){
-        var n=(byId("nm").value||"").trim().slice(0,16);
-        if(!n){ byId("nm").focus(); return; }
-        me={n:n, ar:ar, ac:acStr(ac), tm:tm, room:ROOM};
-        store("hk-me-"+ROOM, JSON.stringify(me));
-        store("hk-look", JSON.stringify({n:n, ar:ar, ac:acStr(ac), tm:tm}));
-        editing=false;
-        if(edit){ send({t:"look", n:n, ar:ar, ac:acStr(ac), tm:tm}); lastKey=""; draw(); }
-        else { send({t:"join", n:n, ar:ar, ac:acStr(ac), tm:tm}); lastKey=""; waitJoin(); }
-      });
-    }
-    wire();
-  }
-  function waitJoin(){
-    h('<div class="wrap">'+bar()+'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;text-align:center">'+
-      '<span style="height:150px;aspect-ratio:120/220;display:block;margin:0 auto" data-me="1">'+figSVG(me.ar,me.ac,me.tm,"dn5")+'</span>'+
-      '<h1 class="serif" style="font-size:28px">Wird angemeldet …</h1><p class="p">Gleich stehst du vorne in der Akademie.</p></div></div>');
-    var tries=0, iv=setInterval(function(){
-      if(row()||tries++>8){ clearInterval(iv); return; }
-      send({t:"join", n:me.n, ar:me.ar, ac:me.ac, tm:me.tm});
-    },1400);
-  }
-
-  function draw(){
-    if(!S||editing) return;
-    if(!me){ if(root.querySelector(".archs")) return; return join(); }
-    var r=row();
-    if(!r){ if(!root.querySelector(".archs")) waitJoin(); return; }
-    var key=S.ph+":"+S.qi+":"+(myAns[S.qi]!==undefined?"a":"-")+":"+(r.s||0)+":"+r.jg+":"+r.jh+":"+(r.keep?"k":"-")+":"+players().length+":"+r.tm;
-    if(key===lastKey) return;
-    lastKey=key;
-    if(S.ph==="lobby")    return wait();
-    if(S.ph==="question") return (myAns[S.qi]!==undefined)?locked():pad();
-    if(S.ph==="reveal")   return result();
-    if(S.ph==="scores")   return standing();
-    return ended();
-  }
-  function wait(){
-    var r=row()||{ar:0,ac:"",tm:0};
-    h('<div class="wrap">'+bar()+'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;text-align:center">'+
-      '<span style="height:165px;aspect-ratio:120/220;display:block" data-me="1">'+figSVG(r.ar,r.ac,r.tm)+'</span>'+
-      '<h1 class="serif" style="font-size:29px">Willkommen in der Akademie.</h1>'+
-      '<p class="p">Du stehst vorne auf den Stufen — für <b style="color:'+TEAM[r.tm].c+'">'+TEAM[r.tm].n+'</b>. Probier schon mal die Tänze aus!</p></div>'+reactBar()+'</div>');
-    wireReact();
-  }
-  function jokerRow(q){
-    var r=row()||{jg:-1,jh:-1};
-    if(q.t==="poll") return '<p class="goldnote" style="color:var(--ink3)">Gewissensfrage · keine Joker nötig</p>';
-    var gOn=(r.jg===S.qi), hOn=(r.jh===S.qi), gSp=(r.jg>=0), hSp=(r.jh>=0)||q.t!=="mc";
-    return '<div class="jokers">'+
-      '<button class="jk gold'+(gOn?" on":"")+'" id="jg"'+(r.jg>=0?" disabled":"")+'>⭐ Doppelt<span>'+(gOn?"aktiv":(gSp?"verbraucht":"1× im Spiel"))+'</span></button>'+
-      '<button class="jk half'+(hOn?" on":"")+'" id="jh"'+(hSp?" disabled":"")+'>½ 50 : 50<span>'+(hOn?"aktiv":((r.jh>=0)?"verbraucht":(q.t!=="mc"?"hier nicht":"1× im Spiel")))+'</span></button></div>';
-  }
-  function pad(){
-    var q=QUIZ[S.qi], r=row()||{jg:-1}, gold=(r.jg===S.qi), keep=r.keep, buttons;
-    if(q.t==="gv"){
-      buttons='<div class="pad gv'+(gold?" golden":"")+'">'+
-        '<button class="ans" data-a="0" style="--ac:var(--herz)"><span style="font-size:52px">❤</span><span><span class="big">Herz</span><small>Gesinnungsethik</small></span></button>'+
-        '<button class="ans" data-a="1" style="--ac:var(--kopf)"><span style="font-size:52px">⚙</span><span><span class="big">Kopf</span><small>Verantwortungsethik</small></span></button></div>';
-    } else if(q.t==="poll"){
-      buttons='<div class="pad gv">'+q.a.map(function(t,n){
-        return '<button class="ans" data-a="'+n+'" style="--ac:'+TEAM[q.pa[n]].c+';font-size:20px"><span style="font-size:40px">'+TEAM[q.pa[n]].i+'</span><span class="lt" style="font-size:19px">'+esc(t)+'</span></button>'; }).join("")+'</div>';
-    } else {
-      buttons='<div class="pad'+(gold?" golden":"")+'">'+[0,1,2,3].map(function(n){
-        var gone=keep && keep.indexOf(n)<0;
-        return '<button class="ans'+(gone?" gone":"")+'" data-a="'+n+'" style="--ac:'+COLORS[n]+'">'+shape(n)+'<span class="lt">'+esc(q.a[n])+'</span></button>'; }).join("")+'</div>';
-    }
-    h('<div class="wrap">'+bar()+'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:13px">'+
-      '<div class="tline"><span class="tnum" id="tn">'+secsOf(q)+'</span><span class="ttrack"><i id="tb" style="width:100%"></i></span></div>'+
-      (q.fin?'<p class="goldnote">★ Finale · doppelte Punkte für alle</p>':'')+
-      jokerRow(q)+(gold?'<p class="goldnote">Doppelte Punkte aktiv</p>':"")+
-      (q.t!=="mc"?'<p class="bigq">'+esc(q.q)+'</p>':'')+
-      buttons+
-      '<p class="p" style="text-align:center;font-size:14.5px">Frage '+(S.qi+1)+' von '+QUIZ.length+(q.t==="mc"?' · Frage steht vorne':'')+'</p></div></div>');
-    paintTimer();
-    on("jg",function(){ send({t:"joker",j:"gold",qi:S.qi}); lastKey=""; });
-    on("jh",function(){ send({t:"joker",j:"half",qi:S.qi}); lastKey=""; });
-    each("[data-a]",function(b){ b.onclick=function(){
-      var n=+b.getAttribute("data-a"); if(myAns[S.qi]!==undefined) return;
-      if(navigator.vibrate) try{ navigator.vibrate(30); }catch(e){}
-      myAns[S.qi]=n; send({t:"answer",qi:S.qi,a:n}); lastKey=""; draw(); }; });
-  }
-  function ansLabel(q,n){
-    if(q.t==="gv") return {c:n?"var(--kopf)":"var(--herz)", i:n?"⚙":"❤", t:n?"Kopf":"Herz"};
-    if(q.t==="poll") return {c:TEAM[q.pa[n]].c, i:TEAM[q.pa[n]].i, t:q.a[n]};
-    return {c:COLORS[n], i:shape(n), t:q.a[n]};
-  }
-  function locked(){
-    var q=QUIZ[S.qi], n=myAns[S.qi], r=row()||{jg:-1}, gold=(r.jg===S.qi), L=ansLabel(q,n);
-    h('<div class="wrap">'+bar()+'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:16px;text-align:center">'+
-      '<div class="tline"><span class="tnum" id="tn">0</span><span class="ttrack"><i id="tb" style="width:0"></i></span></div>'+
-      '<div class="ans" style="--ac:'+L.c+';pointer-events:none;min-height:150px"><span style="font-size:44px">'+L.i+'</span><span class="lt" style="font-size:19px">'+esc(L.t)+'</span></div>'+
-      '<h2 class="serif" style="font-size:26px">Antwort abgegeben.</h2>'+(gold?'<p class="goldnote">Doppelte Punkte laufen</p>':"")+
-      '<p class="p">'+(q.t==="poll"?"Hier gibt es kein Richtig oder Falsch.":"Je schneller du warst, desto mehr Punkte.")+'</p></div></div>');
-    paintTimer();
-  }
-  function result(){
-    var q=QUIZ[S.qi], mine=myAns[S.qi], r=row()||{last:0,s:0,jg:-1,stk:0,bon:0}, rk=myRank(), cls, title, gold=(r.jg===S.qi);
-    if(q.t==="poll"){ cls=mine===undefined?"miss":"poll"; title=mine===undefined?"Nicht abgestimmt":"Danke fürs Nachdenken!"; }
-    else { var right=mine===q.r; cls=mine===undefined?"miss":(right?(gold?"gold2":"good"):"bad");
-      title=mine===undefined?"Zu langsam":(right?(gold?"Richtig — doppelt!":"Richtig!"):"Leider falsch"); }
-    var R = q.t==="poll" ? null : ansLabel(q,q.r);
-    h('<div class="wrap">'+bar()+'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px">'+
-      '<div class="verdict '+cls+'"><div class="vt">'+title+'</div><div class="vp">+'+(r.last||0)+' Punkte'+(q.fin&&r.last?" (Finale ×2)":"")+'</div></div>'+
-      ((r.stk||0)>=2 ? '<div style="text-align:center"><span class="seriebig">🔥 '+r.stk+' richtige in Folge'+((r.bon||0)>0?' · +'+r.bon+' Bonus':'')+'</span></div>' : '')+
-      (R ? '<div class="card" style="text-align:center"><span class="eyebrow" style="font-size:12px">Richtig war</span>'+
-        '<div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px">'+
-        '<span style="width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;background:'+R.c+';border-radius:9px;color:#fff;font-size:20px;padding:6px">'+R.i+'</span>'+
-        '<b style="font-size:18px">'+esc(R.t)+'</b></div></div>' : '')+
-      '<div class="card gold"><p class="p" style="font-size:15.5px">'+q.e+'</p></div>'+
-      '<p class="p" style="text-align:center">Platz <b style="color:var(--ink)">'+rk.r+'</b> von '+rk.of+'</p></div>'+reactBar()+'</div>');
-    wireReact();
-    if(navigator.vibrate && q.t!=="poll" && mine===q.r) try{ navigator.vibrate([40,60,40]); }catch(e){}
-  }
-  function standing(){
-    var r=row()||{s:0,tm:0}, rk=myRank(), ts=teamStats(players());
-    h('<div class="wrap">'+bar()+'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;text-align:center">'+
-      '<span class="eyebrow">Dein Zwischenstand</span>'+
-      '<div class="serif" style="font-size:62px;line-height:.9;background:linear-gradient(90deg,var(--herz),var(--kopf));-webkit-background-clip:text;background-clip:text;color:transparent">'+(r.s||0)+'</div>'+
-      '<h2 style="font-size:20px;font-weight:800">Platz '+rk.r+' von '+rk.of+'</h2>'+
-      '<div class="card" style="padding:12px 14px">'+tugHTML(ts)+'</div>'+
-      '<div class="minihall">'+hallHTML(ranked().map(function(p){ return {id:p.id,n:p.n,ar:p.ar,ac:p.ac,tm:p.tm}; }),{noNames:true})+'</div>'+
-      '</div>'+reactBar()+'</div>');
-    wireReact(); applyDanceP();
-  }
-  function ended(){
-    var r=row()||{s:0,ar:0,ac:"",tm:0}, rk=myRank(), t=funTitles(ranked()), ts=teamStats(players());
-    var amt=(rk.r>=1&&rk.r<=4)?OFFICES[rk.r-1]:null;
-    var w = Math.abs(ts[0].avg-ts[1].avg)<1 ? -1 : (ts[0].avg>ts[1].avg?0:1);
-    h('<div class="wrap">'+bar()+'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:8px;text-align:center">'+
-      '<span style="height:140px;aspect-ratio:120/220;display:block" data-me="1">'+figSVG(r.ar,r.ac,r.tm,"cheer")+'</span>'+
-      '<span class="eyebrow">Endstand · Platz '+rk.r+' von '+rk.of+'</span>'+
-      (amt ? '<h1 class="serif" style="font-size:29px;line-height:1.04">Du bist '+esc(amt[0])+'.</h1><p class="p" style="font-size:15px">'+esc(amt[1])+'</p>'
-           : '<h1 class="serif" style="font-size:29px">'+esc(t[MYID]||"Philosoph:in")+'</h1>')+
-      '<div class="serif" style="font-size:56px;line-height:.9;color:var(--ink);margin-top:4px">'+(r.s||0)+'</div>'+
-      (amt ? '<p class="p" style="font-size:14.5px">'+esc(t[MYID]||"")+'</p>' : "")+
-      '<div class="tbadge '+(w<0?"":"t"+w)+'" style="font-size:15px;padding:6px 14px;'+(w<0?"background:linear-gradient(90deg,var(--herz),var(--kopf))":"")+'">'+
-        (w<0?"Unentschieden zwischen Herz und Kopf":(w===r.tm?"🏆 Dein Team hat gewonnen!":TEAM[w].n+" hat gewonnen"))+'</div>'+
-      '</div>'+reactBar()+'</div>');
-    wireReact();
-  }
-  var seenDance={};
-  function applyDanceP(){
-    arr(S&&S.ev).forEach(function(r){
-      if(!r||r.t!=="dance"||seenDance[r.k]) return; seenDance[r.k]=1;
-      var ps=players();
-      for(var i=0;i<ps.length;i++){
-        if(ps[i].n===r.n){
-          var w=document.querySelector('.minihall .figw[data-fig="'+ps[i].id+'"] .fig');
-          if(w){ clearDance(w); w.classList.add("dn"+(parseInt(r.e,10)||1)); (function(x){ setTimeout(function(){ clearDance(x); },4000); })(w); }
-        }
-      }
-    });
-  }
-  setInterval(function(){ if(S && S.ph==="scores") applyDanceP(); }, 800);
-}
-
-boot();
+var h=parseInt((location.hash||"").slice(1),10);
+if(h>=1 && h<=SL.length) cur=h-1;
+render();
 })();
 </script>
 </body>
