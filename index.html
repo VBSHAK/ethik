@@ -943,10 +943,17 @@ function startHost(){
         G.players={}; G.order=[]; G.answers={}; G.phase="lobby"; G.qi=0; G.out={}; seenAns={}; lastScores={}; dirty=true; lastKey=""; publish(); draw(true);
       }
     }
-    else if(k==="n"||k==="N"){
-      if(confirm("Neuen Raum mit neuem Code öffnen?")){ try{ localStorage.removeItem("hk-host"); }catch(x){} location.hash=""; location.reload(); }
-    }
+    else if(k==="n"||k==="N"){ newLobby(); }
   });
+
+  /* Neue Lobby: alten Raum schließen und zurück zur Startseite */
+  function newLobby(){
+    if(!confirm("Neue Lobby öffnen?\n\nDas aktuelle Quiz wird beendet, alle Spieler und Punkte werden gelöscht.")) return;
+    try{ if(cli && connected) cli.publish(tS(), "", {qos:0, retain:true}); }catch(x){}
+    try{ localStorage.removeItem("hk-host"); localStorage.removeItem("hk-game-"+ROOM); }catch(x){}
+    wantConnect=false;
+    setTimeout(function(){ location.href = baseUrl(); }, 300);
+  }
 
   function list(){ return G.order.map(function(id){ return G.players[id]; }).filter(Boolean); }
   function ranked(){ return list().slice().sort(function(a,b){ return b.s-a.s || String(a.n).localeCompare(String(b.n)); }); }
@@ -1153,6 +1160,7 @@ function startHost(){
   function paintRail(){
     var ul=byId("lb"); if(!ul) return;
     on("qrbtn", toggleQR);
+    on("newlobby", newLobby);
     var rs=ranked();
     ul.innerHTML = rs.map(function(p,i){
       if(lastScores[p.id]!==undefined && p.s>lastScores[p.id]) bumped[p.id]=Date.now();
@@ -1169,7 +1177,8 @@ function startHost(){
   function railHTML(){
     return '<aside class="rail"><div class="railteam"><span class="eyebrow">Team-Duell</span><div id="railtug"></div></div>'+
       '<h3>Rangliste'+(muted?' 🔇':'')+' <b id="lbCount">0</b></h3><ul class="lb" id="lb"></ul>'+
-      (G.phase!=="lobby"?'<button class="mini" id="qrbtn" style="flex:none">📱 QR-Code zum Nachkommen (Q)</button>':'')+'</aside>';
+      (G.phase!=="lobby"?'<button class="mini" id="qrbtn" style="flex:none">📱 QR-Code zum Nachkommen (Q)</button>':'')+
+      '<button class="mini" id="newlobby" style="flex:none">⟲ Neue Lobby öffnen</button></aside>';
   }
   function nextBtn(label){ return '<button class="nextbtn" id="nxt">'+esc(label)+' <span>›</span></button>'; }
   function wireNext(){ on("nxt", advance); }
